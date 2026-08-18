@@ -1,0 +1,41 @@
+name = "xiangcun-xintai-api"
+main = "src/index.ts"
+compatibility_date = "2026-07-20"
+
+[observability.logs]
+enabled = true
+invocation_logs = true
+
+[observability.traces]
+enabled = false
+
+[[d1_databases]]
+binding = "DB"
+database_name = "xiangcun-xintai-db"
+database_id = "420b8c55-8bf1-439b-ac46-edbb5da0cf7c"
+
+# R2 存储 - TODO: P2 上传功能启用后配置
+# [[r2_buckets]]
+# binding = "BUCKET"
+# bucket_name = "xiangcun-xintai-assets"
+
+# KV 命名空间 - TODO: 创建后填入 id
+# [[kv_namespaces]]
+# binding = "JWT_BLACKLIST"
+# id = "your-kv-namespace-id"
+
+[vars]
+ENVIRONMENT = "dev"
+JWT_SECRET = "2762d98b620eede047fcd0eb91c77cd4c767894cac4d244a236e92eb6ac5ee71"
+
+[env.dev]
+vars = { ENVIRONMENT = "dev", JWT_SECRET = "xiangcun-xintai-dev-secret-change-in-production" }
+d1_databases = [
+  { binding = "DB", database_name = "xiangcun-xintai-db", database_id = "420b8c55-8bf1-439b-ac46-edbb5da0cf7c" }
+]
+
+[env.production]
+vars = { ENVIRONMENT = "production", JWT_SECRET = "6ccdf3ce827f0be1f357e24fade3912635ce8bf986ae9cc1eb5435d280ff7b39" }
+d1_databases = [
+  { binding = "DB", database_name = "xiangcun-xintai-db", database_id = "420b8c55-8bf1-439b-ac46-edbb5da0cf7c" }
+]

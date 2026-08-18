@@ -1,0 +1,23 @@
+{
+  "name": "xiangcun-xintai",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev:web": "pnpm --filter xiangcun-xintai-web dev",
+    "dev:api": "pnpm --filter xiangcun-xintai-api dev",
+    "build:web": "pnpm --filter xiangcun-xintai-web build",
+    "deploy:web": "pnpm --filter xiangcun-xintai-web build && pnpm --filter xiangcun-xintai-web exec wrangler pages deploy dist --branch=main",
+    "deploy:api": "pnpm --filter xiangcun-xintai-api exec wrangler deploy",
+    "db:migrate": "pnpm --filter xiangcun-xintai-api db:migrate",
+    "db:migrate:remote": "pnpm --filter xiangcun-xintai-api db:migrate:remote",
+    "db:seed": "pnpm --filter xiangcun-xintai-api db:seed",
+    "db:seed:remote": "pnpm --filter xiangcun-xintai-api db:seed:remote",
+    "clean": "rm -rf node_modules apps/*/node_modules"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
