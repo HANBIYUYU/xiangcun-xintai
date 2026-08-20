@@ -2,7 +2,7 @@
 
 桂阳古戏台红色文旅数字官网。以「戏台红 + 湘昆金 + 米白」为视觉主调，聚合古戏台数字档案、三维古建展厅、红色湘昆文化、乡土共创、研学预约、文创商城与 AI 智能问答的数字文旅平台。
 
-> 当前为 **P0 脚手架**：monorepo 空壳，前后台路由骨架可编译可运行，业务接口与页面均为占位（`status: 'coming'`），P1 起逐步实现。
+> 当前进度：**P0 脚手架 ✅ + P1 数据库 ✅**。前后台路由骨架可编译可运行；D1 全部 16 张表 + 索引已迁移、种子数据已落库（110 座戏台 / 40 题题库 / 默认管理员等）。业务接口与页面仍为占位（`status: 'coming'`），P2 起逐步实现。
 
 ## 技术栈
 
@@ -36,11 +36,13 @@ xiangcun-xintai/
 └── apps/
     ├── api/                      # Cloudflare Workers + Hono + D1
     │   ├── wrangler.toml         # dev / production 双环境；R2、KV 注释占位
+    │   ├── migrations/           # 0001_init.sql：16 张表 + 索引（P1 ✅）
+    │   ├── seeds/                # seed.sql：管理员/110 戏台/40 题库/FAQ/商品等（P1 ✅）
     │   └── src/
     │       ├── index.ts          # Hono 入口：logger + cors + 健康检查 + 路由注册 + onError/notFound
     │       ├── types.ts          # Env / Admin / JWTPayload 类型
     │       ├── middleware/auth.ts# JWT 校验 + requireRole 角色中间件
-    │       └── routes/           # auth（已实现）+ 13 个占位路由（P1/P2 实现）
+    │       └── routes/           # auth（已实现）+ 13 个占位路由（P2/P3 实现）
     └── web/                      # React 18 + Vite + AntD + React Router
         └── src/
             ├── main.tsx          # ConfigProvider（zhCN + 红旅主题 token）
@@ -54,7 +56,14 @@ xiangcun-xintai/
 
 ## 默认账号
 
-管理后台默认账号（`admin` / 默认密码）由 **P1** 的数据库迁移与种子脚本（`apps/api/migrations/`）写入。P0 阶段 `admins` 表尚未创建，登录接口返回「用户名或密码错误」属预期现象。
+P1 已通过种子脚本（`apps/api/seeds/seed.sql`）写入两个管理账号，均可登录后台：
+
+| 账号 | 密码 | 角色 |
+| --- | --- | --- |
+| `team` | `xiangcun2026` | 项目团队（上传/审核/预约/订单/导出） |
+| `admin` | `xiangcun2026` | 政企文旅管理员（戏台史料/官方活动/营收台账） |
+
+> 演示用途密码，上线前请通过后台或 SQL 修改。
 
 ## R2 / 上传现状
 

@@ -7,8 +7,8 @@
     "deploy": "wrangler deploy",
     "db:migrate": "wrangler d1 migrations apply xiangcun-xintai-db",
     "db:migrate:remote": "wrangler d1 migrations apply xiangcun-xintai-db --remote",
-    "db:seed": "wrangler d1 execute xiangcun-xintai-db --file=./migrations/seed.sql",
-    "db:seed:remote": "wrangler d1 execute xiangcun-xintai-db --file=./migrations/seed.sql --remote"
+    "db:seed": "wrangler d1 execute xiangcun-xintai-db --file=./seeds/seed.sql",
+    "db:seed:remote": "wrangler d1 execute xiangcun-xintai-db --file=./seeds/seed.sql --remote"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
