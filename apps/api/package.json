@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
+    "deploy": "wrangler deploy --env production",
     "db:migrate": "wrangler d1 migrations apply xiangcun-xintai-db",
     "db:migrate:remote": "wrangler d1 migrations apply xiangcun-xintai-db --remote",
     "db:seed": "wrangler d1 execute xiangcun-xintai-db --file=./seeds/seed.sql",

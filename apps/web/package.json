@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "deploy": "wrangler pages deploy dist"
+    "deploy": "wrangler pages deploy dist --project-name=xiangcun-xintai --branch=main"
   },
   "dependencies": {
     "@ant-design/icons": "^5.6.1",

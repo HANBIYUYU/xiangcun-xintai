@@ -42,6 +42,16 @@ pnpm clean          # 删除所有 node_modules
 
 `pnpm dev:api` 与 `pnpm dev:web` 需同时运行。Web 开发服务器通过 Vite proxy 将 `/api` 请求代理到 `localhost:8787`。
 
+## 线上地址（2026-08-21 首次部署）
+
+| 端 | 地址 |
+| --- | --- |
+| 官网（Cloudflare Pages） | https://xiangcun-xintai.pages.dev |
+| API（Workers，生产环境） | https://xiangcun-xintai-api-production.quaiquai11.workers.dev |
+| 远程数据库 | D1 `xiangcun-xintai-db`（亚太区，已迁移 + 种子） |
+
+前端 `/api` 请求由 **Pages Function**（`apps/web/functions/api/[[path]].ts`）同域代理到 API Worker，Cookie 登录链路可用。部署命令：`pnpm deploy:api`（`wrangler deploy --env production`）与 `pnpm deploy:web`（Pages `--project-name=xiangcun-xintai`）。
+
 ## 目录结构
 
 ```
