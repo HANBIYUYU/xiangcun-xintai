@@ -11,6 +11,8 @@ import submissionRoutes from './routes/submissions'
 import suggestionRoutes from './routes/suggestions'
 import quizRoutes from './routes/quiz'
 import bookingRoutes from './routes/bookings'
+import studyPlanRoutes from './routes/study-plans'
+import studyResultRoutes from './routes/study-results'
 import productRoutes from './routes/products'
 import orderRoutes from './routes/orders'
 import faqRoutes from './routes/faq'
@@ -45,6 +47,8 @@ app.route('/api/submissions', submissionRoutes)
 app.route('/api/suggestions', suggestionRoutes)
 app.route('/api/quiz', quizRoutes)
 app.route('/api/bookings', bookingRoutes)
+app.route('/api/study-plans', studyPlanRoutes)
+app.route('/api/study-results', studyResultRoutes)
 app.route('/api/products', productRoutes)
 app.route('/api/orders', orderRoutes)
 app.route('/api/faq', faqRoutes)
