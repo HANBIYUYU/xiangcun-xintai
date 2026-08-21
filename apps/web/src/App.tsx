@@ -12,7 +12,12 @@ import AIPage from './pages/AI'
 import AdminLayout from './components/AdminLayout'
 import AdminLogin from './pages/Admin/Login'
 import AdminDashboard from './pages/Admin/Dashboard'
-import ResourcePlaceholder from './pages/Admin/ResourcePlaceholder'
+import AdminCrudPage from './pages/Admin/AdminCrudPage'
+import {
+  StagesAdminConfig, RedPlaysAdminConfig, ArticlesAdminConfig,
+  ActivitiesAdminConfig, ProductsAdminConfig, FaqAdminConfig,
+} from './pages/Admin/Resources'
+import { SubmissionsAdmin, SuggestionsAdmin, QuizAdmin, BookingsAdmin, OrdersAdmin } from './pages/Admin/SpecialPages'
 
 // 三维展厅懒加载（three.js 体积较大，独立分包）
 const Hall3DPage = lazy(() => import('./pages/Hall3D'))
@@ -44,17 +49,17 @@ function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="login" element={<AdminLogin />} />
           <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="stages" element={<ResourcePlaceholder title="戏台档案管理" description="戏台数字档案的增删改查与内容审核，P11 实现" />} />
-          <Route path="red-plays" element={<ResourcePlaceholder title="红色戏曲管理" description="红色戏曲剧目、音视频与台本管理，P11 实现" />} />
-          <Route path="articles" element={<ResourcePlaceholder title="互动阅读管理" description="红色互动阅读内容管理，P11 实现" />} />
-          <Route path="activities" element={<ResourcePlaceholder title="活动预告管理" description="活动预告发布、编辑与上下架，P11 实现" />} />
-          <Route path="submissions" element={<ResourcePlaceholder title="投稿审核管理" description="用户投稿的审核与发布，P11 实现" />} />
-          <Route path="suggestions" element={<ResourcePlaceholder title="建言归档管理" description="用户建言的归档与回复，P11 实现" />} />
-          <Route path="quiz" element={<ResourcePlaceholder title="题库管理" description="互动答题与 AI 问答题库维护，P11 实现" />} />
-          <Route path="bookings" element={<ResourcePlaceholder title="研学预约管理" description="研学预约的查询与处理，P11 实现" />} />
-          <Route path="products" element={<ResourcePlaceholder title="商品管理" description="文创助农产品与库存管理，P11 实现" />} />
-          <Route path="orders" element={<ResourcePlaceholder title="订单管理" description="订单查询与售后处理，P11 实现" />} />
-          <Route path="faq" element={<ResourcePlaceholder title="问答库管理" description="常见问题与知识库条目维护，P11 实现" />} />
+          <Route path="stages" element={<AdminCrudPage config={StagesAdminConfig} />} />
+          <Route path="red-plays" element={<AdminCrudPage config={RedPlaysAdminConfig} />} />
+          <Route path="articles" element={<AdminCrudPage config={ArticlesAdminConfig} />} />
+          <Route path="activities" element={<AdminCrudPage config={ActivitiesAdminConfig} />} />
+          <Route path="submissions" element={<SubmissionsAdmin />} />
+          <Route path="suggestions" element={<SuggestionsAdmin />} />
+          <Route path="quiz" element={<QuizAdmin />} />
+          <Route path="bookings" element={<BookingsAdmin />} />
+          <Route path="products" element={<AdminCrudPage config={ProductsAdminConfig} />} />
+          <Route path="orders" element={<OrdersAdmin />} />
+          <Route path="faq" element={<AdminCrudPage config={FaqAdminConfig} />} />
         </Route>
 
         {/* 未匹配路由回首页 */}

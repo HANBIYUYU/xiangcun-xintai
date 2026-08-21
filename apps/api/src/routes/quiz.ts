@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import type { Env } from '../types'
+import { authMiddleware, requireRole } from '../middleware/auth'
 
 const quiz = new Hono<{ Bindings: Env }>()
 
@@ -73,6 +74,36 @@ quiz.post('/submit', async (c) => {
       : `答对 ${correct}/${total} 题，未达 80% 通关线，再接再厉！`,
     details,
   })
+})
+
+/** GET /api/quiz — 题库列表（管理端，含答案，团队） */
+quiz.get('/', authMiddleware, requireRole('team'), async (c) => {
+  const rows = await c.env.DB.prepare(
+    'SELECT id, question, option_a, option_b, option_c, option_d, answer, explanation, stage_id FROM quiz_questions ORDER BY id ASC'
+  ).all()
+  return c.json({ list: rows.results, total: rows.results.length })
+})
+
+/** POST /api/quiz — 新增题目（团队） */
+quiz.post('/', authMiddleware, requireRole('team'), async (c) => {
+  const b = await c.req.json().catch(() => null)
+  const question = String(b?.question ?? '').trim()
+  const answer = String(b?.answer ?? '').toUpperCase()
+  if (!question) return c.json({ error: '题目不能为空' }, 400)
+  if (!['A', 'B', 'C', 'D'].includes(answer)) return c.json({ error: '正确答案需为 A/B/C/D' }, 400)
+
+  const r = await c.env.DB.prepare(
+    'INSERT INTO quiz_questions (question, option_a, option_b, option_c, option_d, answer, explanation, stage_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+  ).bind(question, String(b?.option_a ?? ''), String(b?.option_b ?? ''), String(b?.option_c ?? ''), String(b?.option_d ?? ''), answer, String(b?.explanation ?? ''), b?.stage_id ?? null).run()
+  return c.json({ success: true, id: r.meta.last_row_id }, 201)
+})
+
+/** DELETE /api/quiz/:id — 删除题目（团队） */
+quiz.delete('/:id', authMiddleware, requireRole('team'), async (c) => {
+  const id = Number(c.req.param('id'))
+  const r = await c.env.DB.prepare('DELETE FROM quiz_questions WHERE id = ?').bind(id).run()
+  if (r.meta.changes === 0) return c.json({ error: '题目不存在' }, 404)
+  return c.json({ success: true, id })
 })
 
 export default quiz

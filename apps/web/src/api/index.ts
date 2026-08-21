@@ -103,6 +103,9 @@ export const suggestionsAPI = {
 export const quizAPI = {
   random: () => api.get('/quiz/random'),
   submit: (data: { answers: { question_id: number; answer: string }[]; phone: string }) => api.post('/quiz/submit', data),
+  list: () => api.get('/quiz'),
+  create: (data: unknown) => api.post('/quiz', data),
+  remove: (id: number) => api.delete(`/quiz/${id}`),
 }
 
 // ============ 研学 ============
@@ -140,6 +143,9 @@ export const couponsAPI = {
 export const faqAPI = {
   ask: (question: string) => api.post('/faq/ask', { question }, { skipAuthRedirect: true }),
   list: () => api.get('/faq'),
+  create: (data: unknown) => api.post('/faq', data),
+  update: (id: number | string, data: unknown) => api.put(`/faq/${id}`, data),
+  remove: (id: number | string) => api.delete(`/faq/${id}`),
 }
 
 // ============ 新闻 ============

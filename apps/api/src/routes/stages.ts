@@ -1,15 +1,38 @@
 import { Hono } from 'hono'
 import type { Env } from '../types'
+import { authMiddleware, requireRole } from '../middleware/auth'
 
 const stages = new Hono<{ Bindings: Env }>()
 
-/** 列表页展示字段（详情接口返回全字段） */
-const LIST_FIELDS = 'id, name, town, heritage_level, damage, built_year, style, cover_url, is_red_site'
+const HERITAGE_LEVELS = ['国家级', '省级', '市级', '县级', '未定级']
+const DAMAGES = ['完好', '较好', '一般', '破损', '濒危']
+
+function pickStageFields(body: any) {
+  return {
+    name: String(body?.name ?? '').trim(),
+    town: String(body?.town ?? '').trim(),
+    heritage_level: body?.heritage_level || '未定级',
+    damage: body?.damage || '较好',
+    built_year: String(body?.built_year ?? '').trim(),
+    style: String(body?.style ?? '').trim(),
+    history_text: String(body?.history_text ?? ''),
+    red_story: String(body?.red_story ?? ''),
+    repair_log: String(body?.repair_log ?? ''),
+    audio_url: String(body?.audio_url ?? ''),
+    lng: body?.lng != null ? Number(body.lng) : null,
+    lat: body?.lat != null ? Number(body.lat) : null,
+    cover_url: String(body?.cover_url ?? ''),
+    is_red_site: body?.is_red_site ? 1 : 0,
+  }
+}
 
 function esc(v: unknown): string {
   const s = String(v ?? '')
   return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
 }
+
+/** 列表页展示字段（详情接口返回全字段） */
+const LIST_FIELDS = 'id, name, town, heritage_level, damage, built_year, style, cover_url, is_red_site'
 
 /** GET /api/stages/meta/towns — 乡镇下拉选项（去重） */
 stages.get('/meta/towns', async (c) => {
@@ -113,6 +136,49 @@ ${block('修缮记录', r.repair_log)}
 ${block('村民口述', r.audio_url ? `音频：${r.audio_url}` : '')}
 <div class="footer">湘村新台 · 桂阳古戏台红色文旅数字官网 —— 档案编号 ${r.id}</div>
 </body></html>`)
+})
+
+/** POST /api/stages — 新增戏台（政企管理员） */
+stages.post('/', authMiddleware, requireRole('admin'), async (c) => {
+  const body = await c.req.json().catch(() => null)
+  const f = pickStageFields(body)
+  if (!f.name) return c.json({ error: '戏台名称不能为空' }, 400)
+  if (!HERITAGE_LEVELS.includes(f.heritage_level)) return c.json({ error: '文保等级不正确' }, 400)
+  if (!DAMAGES.includes(f.damage)) return c.json({ error: '破损程度不正确' }, 400)
+
+  const result = await c.env.DB.prepare(
+    `INSERT INTO stages (name, town, heritage_level, damage, built_year, style, history_text, red_story, repair_log, audio_url, lng, lat, cover_url, is_red_site)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+  ).bind(f.name, f.town, f.heritage_level, f.damage, f.built_year, f.style, f.history_text, f.red_story, f.repair_log, f.audio_url, f.lng, f.lat, f.cover_url, f.is_red_site).run()
+
+  return c.json({ success: true, id: result.meta.last_row_id }, 201)
+})
+
+/** PUT /api/stages/:id — 更新戏台（政企管理员） */
+stages.put('/:id', authMiddleware, requireRole('admin'), async (c) => {
+  const id = Number(c.req.param('id'))
+  if (!Number.isInteger(id) || id <= 0) return c.json({ error: '参数错误' }, 400)
+
+  const body = await c.req.json().catch(() => null)
+  const f = pickStageFields(body)
+  if (!f.name) return c.json({ error: '戏台名称不能为空' }, 400)
+
+  const result = await c.env.DB.prepare(
+    `UPDATE stages SET name = ?, town = ?, heritage_level = ?, damage = ?, built_year = ?, style = ?, history_text = ?, red_story = ?, repair_log = ?, audio_url = ?, lng = ?, lat = ?, cover_url = ?, is_red_site = ?, updated_at = datetime('now','localtime') WHERE id = ?`
+  ).bind(f.name, f.town, f.heritage_level, f.damage, f.built_year, f.style, f.history_text, f.red_story, f.repair_log, f.audio_url, f.lng, f.lat, f.cover_url, f.is_red_site, id).run()
+
+  if (result.meta.changes === 0) return c.json({ error: '戏台不存在' }, 404)
+  return c.json({ success: true, id })
+})
+
+/** DELETE /api/stages/:id — 删除戏台（政企管理员） */
+stages.delete('/:id', authMiddleware, requireRole('admin'), async (c) => {
+  const id = Number(c.req.param('id'))
+  if (!Number.isInteger(id) || id <= 0) return c.json({ error: '参数错误' }, 400)
+
+  const result = await c.env.DB.prepare('DELETE FROM stages WHERE id = ?').bind(id).run()
+  if (result.meta.changes === 0) return c.json({ error: '戏台不存在' }, 404)
+  return c.json({ success: true, id })
 })
 
 export default stages
