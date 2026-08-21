@@ -33,25 +33,30 @@ pnpm clean          # 删除所有 node_modules
 ```
 xiangcun-xintai/
 ├── package.json / pnpm-workspace.yaml / .gitignore / README.md
+├── docs/
+│   ├── 需求与计划.md             # 需求九大模块 + 构建计划 + 进度（整合自 初步构建/构建计划）
+│   ├── 开发日志.md               # 各阶段进展与阻碍记录（P0–P12）
+│   ├── 真数据填充清单.md         # 假数据/占位文案 → 待填充真数据（台账/素材/地图/3D）
+│   └── TODO.md                   # 待办清单（P13 上线 / 真数据填充 / 可选增强）
 └── apps/
     ├── api/                      # Cloudflare Workers + Hono + D1
     │   ├── wrangler.toml         # dev / production 双环境；R2、KV 注释占位
-    │   ├── migrations/           # 0001_init.sql：16 张表 + 索引（P1 ✅）
-    │   ├── seeds/                # seed.sql：管理员/110 戏台/40 题库/FAQ/商品等（P1 ✅）
+    │   ├── migrations/           # 0001_init.sql：16 张表 + 索引
+    │   ├── seeds/                # seed.sql：管理员/110 戏台/40 题库/FAQ/商品等
     │   └── src/
     │       ├── index.ts          # Hono 入口：logger + cors + 健康检查 + 路由注册 + onError/notFound
     │       ├── types.ts          # Env / Admin / JWTPayload 类型
     │       ├── middleware/auth.ts# JWT 校验 + requireRole 角色中间件
-    │       └── routes/           # auth（已实现）+ 13 个占位路由（P2/P3 实现）
+    │       └── routes/           # 16 个资源路由（auth/stages/red-plays/articles/activities/submissions/suggestions/quiz/bookings/study-plans/study-results/products/orders/coupons/faq/news/stats/upload）
     └── web/                      # React 18 + Vite + AntD + React Router
         └── src/
             ├── main.tsx          # ConfigProvider（zhCN + 红旅主题 token）
             ├── App.tsx           # 前台 9 条路由 + 后台 12 条路由 + 兜底回首页
-            ├── api/index.ts      # axios 实例（/api、withCredentials、401 拦截）+ authAPI
+            ├── api/index.ts      # axios 实例 + 全量资源 API 分组
             ├── styles/theme.css  # 红色文旅设计系统（CSS 变量 + 工具类）
-            ├── components/       # TransparentNav / Footer / BackToTop / FloatingNext / PageLayout / AdminLayout
+            ├── components/       # TransparentNav / Footer / BackToTop / FloatingNext / PageLayout / AdminLayout / Stage3D
             ├── sections/         # HeroSection / EntrancesSection / StatsSection
-            └── pages/            # 前台 9 页 + Admin（Login / Dashboard / ResourcePlaceholder）
+            └── pages/            # 前台 9 页 + Admin（Login/Dashboard/CRUD/专项管理页）
 ```
 
 ## 默认账号

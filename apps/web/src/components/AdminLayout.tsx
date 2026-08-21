@@ -70,7 +70,8 @@ export default function AdminLayout() {
           selectedKeys={[location.pathname]}
           items={menuItems}
         />
-        <div style={{ padding: 16, position: 'absolute', bottom: 0, width: '100%' }}>
+        <div style={{ padding: 16, position: 'absolute', bottom: 0, width: '100%', display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <Button onClick={() => navigate('/')} block>返回主页</Button>
           <Button onClick={handleLogout} block>退出登录</Button>
         </div>
       </Sider>
