@@ -1,4 +1,4 @@
-﻿import axios from 'axios'
+import axios from 'axios'
 
 // 扩展 axios 配置：公开接口可关闭 401 自动跳登录
 declare module 'axios' {
@@ -51,6 +51,7 @@ export const statsAPI = {
 export const stagesAPI = {
   list: (params?: PageParams) => api.get('/stages', { params }),
   detail: (id: number | string) => api.get(`/stages/${id}`),
+  metaTowns: () => api.get('/stages/meta/towns'),
   create: (data: unknown) => api.post('/stages', data),
   update: (id: number | string, data: unknown) => api.put(`/stages/${id}`, data),
   remove: (id: number | string) => api.delete(`/stages/${id}`),
