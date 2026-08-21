@@ -39,7 +39,9 @@ auth.post('/login', async (c) => {
     .setExpirationTime('24h')
     .sign(secret)
 
-  c.header('Set-Cookie', `token=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=86400`)
+  // 本地开发（http）不加 Secure，否则部分浏览器不保存 Cookie；生产环境强制 Secure
+  const secure = c.env.ENVIRONMENT === 'production' ? '; Secure' : ''
+  c.header('Set-Cookie', `token=${token}; HttpOnly${secure}; SameSite=Lax; Path=/; Max-Age=86400`)
 
   return c.json({ success: true, username: admin.username, role: admin.role })
 })
@@ -55,7 +57,8 @@ auth.post('/logout', async (c) => {
     }
   }
 
-  c.header('Set-Cookie', 'token=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0')
+  const secure = c.env.ENVIRONMENT === 'production' ? '; Secure' : ''
+  c.header('Set-Cookie', `token=; HttpOnly${secure}; SameSite=Lax; Path=/; Max-Age=0`)
   return c.json({ success: true })
 })
 
