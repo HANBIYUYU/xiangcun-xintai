@@ -18,21 +18,24 @@
 - [ ] 域名绑定 + CORS 白名单补充正式域名
 - [ ] 生产 `JWT_SECRET` 通过 Cloudflare secrets 覆盖（勿入库）
 
-## C. 真数据填充,开通R2
+## C. 真数据填充 · 素材接入（打包方案 + R2）
 
-- [ ] R2 存储开通 → `/api/upload` 落地（需支付方式）
-- [ ] 乡村共创平台，开通图片视频上传功能
-- [ ] 110 座戏台官方台账导入 `stages`（Excel/CSV 或后台「戏台档案」逐条录入），替换 95 条占位行
-- [ ] 真实戏台照片替换全站 `placehold.co` 占位图（R2 或外链图床）
-- [ ] 真实经纬度更新 `stages.lng/lat`（地图预留）
-- [ ] **古戏台地图模块**：高德/Leaflet 接入，点位点击弹出戏台简介（与档案库打通）
-- [ ] **真实 3D 建模**：2–3 座重点戏台 glb 轻量化模型替换程序化占位（激光扫描/手工建模）
-- [ ] 正式演出视频嵌入地址替换 `bvid=PLACEHOLDER*`（bilibili/腾讯/YouTube 白名单）
-- [ ] 村民口述音频采集 → 写入 `stages.audio_url`
+> **素材存储决策（2026-08-21 调研）**：官方/精选素材（图片、GeoJSON、OBJ、短音频）**直接打包进 Pages 静态目录**（`apps/web/public/assets/`），随部署上线、CDN 免费无限流量；**用户投稿与超 25MiB 大文件仍需 R2**。限制：Pages 单文件 ≤25 MiB、每站点 ≤20,000 文件（Free）。详见 `docs/需求与计划.md` §7/§8。
+
+- [ ] 官方素材打包方案落地：`apps/web/public/assets/` 目录规范（命名 `模块_类型_编号`）
+- [ ] 110 座戏台官方台账导入 `stages`（Excel/CSV），替换 95 条占位行
+- [ ] 真实戏台照片替换占位图（打包进 `public/assets/stages/`）
+- [ ] 真实经纬度更新 `stages.lng/lat`（同步生成 GeoJSON）
+- [ ] **古戏台地图模块**：生成 `public/assets/map/guiyang-stages.geojson` 直接导入，高德/Leaflet 画点 + 点击弹简介（与档案库打通）
+- [ ] **3D 模型**：OBJ 文件直接导入（`public/assets/models/*.obj` + MTL/贴图），three.js OBJLoader 加载；单文件 ≤25MiB，超限拆分或压缩
+- [ ] 正式演出视频嵌入地址替换 `bvid=PLACEHOLDER*`（B 站上传 + 官方裸 iframe 嵌入；后续可选 Cloudflare Stream 私有视频）
+- [ ] 村民口述音频采集（≤25MiB 短音频可打包；长音频走 R2/外链）
 - [ ] 题库按真实台账校订、扩充（≥40 题）
 - [ ] 公众号推文、校地新闻、研学成果、商品图文真实资料录入
 - [ ] FAQ 依据官方资料校订
 - [ ] 演示账号 `xiangcun2026` 改密
+- [ ] R2 存储开通 → `/api/upload` 落地（用户投稿/大文件，需支付方式）
+- [ ] 乡村共创平台，开通图片视频上传功能（依赖 R2）
 
 ## D. 其余（增强项，按需排期）
 

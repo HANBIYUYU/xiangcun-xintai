@@ -93,10 +93,11 @@ P1 已通过种子脚本（`apps/api/seeds/seed.sql`）写入两个管理账号�
 
 > 演示用途密码，上线前请通过后台或 SQL 修改。
 
-## R2 / 上传现状
+## 素材方案现状
 
-- R2 存储尚未开通，`wrangler.toml` 中已留注释占位（`xiangcun-xintai-assets`），KV 命名空间同理。
-- `/api/upload` 目前为占位实现（返回 `status: 'coming'`），文件上传与预签名 URL 待 R2 开通后实现；开通前图片/素材可通过外链 URL 在后台录入。
+- **官方素材（图片 / GeoJSON 地图 / OBJ 3D / 短音频）**：打包进 Pages 静态目录 `apps/web/public/assets/`，随部署上线（Pages 限制：单文件 ≤25 MiB、Free 计划 ≤20,000 文件）。
+- **视频**：长视频放 B 站，页面用官方 **裸 iframe**（`player.bilibili.com/player.html?bvid=...`）嵌入；后续可选 Cloudflare Stream 私有视频（无跳转、不公开，需外币卡）。
+- **R2 存储**：尚未开通，`wrangler.toml` 中已留注释占位；`/api/upload` 为占位实现，待 R2 开通后落地——用于**用户投稿上传**与超 25MiB 大文件；开通前素材以外链 URL 在后台录入。
 - 本地开发请勿提交 `.dev.vars` 与 `wrangler.toml.local`（已在 `.gitignore` 中排除）；生产 `JWT_SECRET` 请通过 Cloudflare secrets 覆盖。
 
 ## 主题
