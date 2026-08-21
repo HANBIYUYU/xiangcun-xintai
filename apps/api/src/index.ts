@@ -15,6 +15,7 @@ import productRoutes from './routes/products'
 import orderRoutes from './routes/orders'
 import faqRoutes from './routes/faq'
 import newsRoutes from './routes/news'
+import statsRoutes from './routes/stats'
 import uploadRoutes from './routes/upload'
 
 const app = new Hono<{ Bindings: Env }>()
@@ -48,6 +49,7 @@ app.route('/api/products', productRoutes)
 app.route('/api/orders', orderRoutes)
 app.route('/api/faq', faqRoutes)
 app.route('/api/news', newsRoutes)
+app.route('/api/stats', statsRoutes)
 app.route('/api/upload', uploadRoutes)
 
 app.onError((err, c) => {
