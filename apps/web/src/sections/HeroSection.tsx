@@ -2,23 +2,49 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 /**
- * 占位轮播两条主线：红色戏台 / 湘昆非遗
- * 占位图用纯 CSS 渐变面板代替（P1 起替换为真实图片）
+ * 轮播：5 张桂阳古戏台影像（素材未整理 → public/assets/hero/hero-1~5.jpg，1440×630）
+ * 未放图时自动回退到 CSS 渐变面板；标题/文案可在下方 slides 数组中修改
  */
 const slides = [
   {
-    key: 'red-stage',
-    title: '红色戏台',
-    caption: '重温桂阳古戏台红色记忆，聆听革命故事的回响',
+    key: 'slide-1',
+    title: '桂阳古戏台',
+    caption: '影像 1 / 5',
     gradient: 'linear-gradient(135deg, #7A141B 0%, #A3232B 60%, #C0392B 100%)',
-    tag: '红色主线',
+    bg: '/assets/hero/hero-1.jpg',
+    tag: '戏台掠影',
   },
   {
-    key: 'kunqu',
-    title: '湘昆非遗',
-    caption: '走进国家级非遗湘昆，感受戏台之上的婉转腔韵',
+    key: 'slide-2',
+    title: '桂阳古戏台',
+    caption: '影像 2 / 5',
     gradient: 'linear-gradient(135deg, #8A1B22 0%, #C0392B 45%, #D4A017 100%)',
-    tag: '非遗主线',
+    bg: '/assets/hero/hero-2.jpg',
+    tag: '戏台掠影',
+  },
+  {
+    key: 'slide-3',
+    title: '桂阳古戏台',
+    caption: '影像 3 / 5',
+    gradient: 'linear-gradient(135deg, #7A141B 0%, #8E2B22 50%, #D4A017 100%)',
+    bg: '/assets/hero/hero-3.jpg',
+    tag: '戏台掠影',
+  },
+  {
+    key: 'slide-4',
+    title: '桂阳古戏台',
+    caption: '影像 4 / 5',
+    gradient: 'linear-gradient(135deg, #6B141B 0%, #A3232B 55%, #C9A227 100%)',
+    bg: '/assets/hero/hero-4.jpg',
+    tag: '戏台掠影',
+  },
+  {
+    key: 'slide-5',
+    title: '桂阳古戏台',
+    caption: '影像 5 / 5',
+    gradient: 'linear-gradient(135deg, #7A141B 0%, #B03A2B 50%, #D4A017 100%)',
+    bg: '/assets/hero/hero-5.jpg',
+    tag: '戏台掠影',
   },
 ];
 
@@ -45,7 +71,7 @@ export default function HeroSection() {
         position: 'relative',
         overflow: 'hidden',
         background: 'linear-gradient(135deg, #A3232B 0%, #C0392B 45%, #D4A017 100%)',
-        padding: 'clamp(80px, 12vh, 140px) 24px clamp(60px, 8vh, 100px)',
+        padding: 'clamp(64px, 9vh, 120px) 24px clamp(48px, 6vh, 80px)',
       }}
     >
       {/* 装饰光晕（呼吸动画） */}
@@ -113,17 +139,21 @@ export default function HeroSection() {
           <button className="btn-secondary" onClick={() => navigate('/3d')}>进入三维展厅</button>
         </div>
 
-        {/* 占位轮播：红色戏台 / 湘昆非遗 */}
+        {/* 轮播：5 张戏台影像（有图用图，无图回退渐变） */}
         <div className="hero-carousel">
           {slides.map((s, i) => (
             <div
               key={s.key}
               className={`hero-slide${i === active ? ' active' : ''}`}
-              style={{ background: s.gradient }}
+              style={{
+                background: `linear-gradient(to top, rgba(15, 10, 8, 0.62) 0%, rgba(15, 10, 8, 0.18) 45%, rgba(15, 10, 8, 0) 72%), url(${s.bg}) center / cover no-repeat, ${s.gradient}`,
+              }}
             >
-              <span className="hero-slide-tag">{s.tag}</span>
-              <span className="hero-slide-title">{s.title}</span>
-              <span className="hero-slide-caption">{s.caption}</span>
+              <div className="hero-slide-meta">
+                <span className="hero-slide-tag">{s.tag}</span>
+                <span className="hero-slide-title">{s.title}</span>
+                <span className="hero-slide-caption">{s.caption}</span>
+              </div>
             </div>
           ))}
         </div>
@@ -137,24 +167,6 @@ export default function HeroSection() {
               onClick={() => setActive(i)}
             />
           ))}
-        </div>
-      </div>
-
-      {/* 滚动提示 */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 80,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 1,
-        }}
-      >
-        <div className="scroll-hint" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-          <span style={{ fontSize: 17, color: 'rgba(255, 255, 255, 0.65)', letterSpacing: '0.1em' }}>向下滑动</span>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M4 6L8 10L12 6" stroke="rgba(255, 255, 255, 0.65)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
         </div>
       </div>
     </section>

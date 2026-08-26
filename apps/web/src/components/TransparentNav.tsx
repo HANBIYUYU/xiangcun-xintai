@@ -86,7 +86,18 @@ export default function TransparentNav() {
             textShadow: scrolled ? 'none' : '0 2px 12px rgba(0,0,0,0.2)',
           }}
         >
-          <span style={{ color: scrolled ? '#A3232B' : '#FFD97A' }}>台</span>
+          <img
+            src="/assets/logo.png"
+            alt="湘村新台"
+            style={{
+              height: 36,
+              width: 'auto',
+              objectFit: 'contain',
+              borderRadius: 8,
+              background: scrolled ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.12)',
+              padding: 3,
+            }}
+          />
           <span>湘村新台</span>
         </div>
 
