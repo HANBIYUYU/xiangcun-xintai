@@ -9,6 +9,7 @@ import CommunityPage from './pages/Community'
 import StudyPage from './pages/Study'
 import MallPage from './pages/Mall'
 import AIPage from './pages/AI'
+import MapPage from './pages/Map'
 import AdminLayout from './components/AdminLayout'
 import AdminLogin from './pages/Admin/Login'
 import AdminDashboard from './pages/Admin/Dashboard'
@@ -37,6 +38,7 @@ function App() {
         {/* 前台 */}
         <Route path="/" element={<Home />} />
         <Route path="/archive" element={<ArchivePage />} />
+        <Route path="/map" element={<MapPage />} />
         <Route path="/archive/:id" element={<ArchiveDetailPage />} />
         <Route path="/3d" element={<Hall3DPage />} />
         <Route path="/culture" element={<CulturePage />} />
