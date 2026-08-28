@@ -1,23 +1,33 @@
-﻿import { Hono } from 'hono'
+import { Hono } from 'hono'
 import type { Env } from '../types'
 import { authMiddleware, requireRole } from '../middleware/auth'
 
 const stages = new Hono<{ Bindings: Env }>()
 
 const HERITAGE_LEVELS = ['国家级', '省级', '市级', '县级', '未定级']
-const DAMAGES = ['完好', '较好', '一般', '破损', '濒危']
 
 function pickStageFields(body: any) {
   return {
     name: String(body?.name ?? '').trim(),
+    name_en: String(body?.name_en ?? '').trim(),
     town: String(body?.town ?? '').trim(),
+    province: String(body?.province ?? '').trim(),
+    city: String(body?.city ?? '').trim(),
+    address: String(body?.address ?? '').trim(),
+    ancestral_hall: String(body?.ancestral_hall ?? '').trim(),
     heritage_level: body?.heritage_level || '未定级',
-    damage: body?.damage || '较好',
+    heritage_batch: String(body?.heritage_batch ?? '').trim(),
+    heritage_date: String(body?.heritage_date ?? '').trim(),
+    heritage_type: String(body?.heritage_type ?? '').trim(),
+    era: String(body?.era ?? '').trim(),
     built_year: String(body?.built_year ?? '').trim(),
     style: String(body?.style ?? '').trim(),
+    damage: body?.damage || '较好', // 保护现状原文
     history_text: String(body?.history_text ?? ''),
     red_story: String(body?.red_story ?? ''),
     repair_log: String(body?.repair_log ?? ''),
+    media_links: String(body?.media_links ?? ''),
+    oral_history: String(body?.oral_history ?? ''),
     audio_url: String(body?.audio_url ?? ''),
     lng: body?.lng != null ? Number(body.lng) : null,
     lat: body?.lat != null ? Number(body.lat) : null,
@@ -32,12 +42,20 @@ function esc(v: unknown): string {
 }
 
 /** 列表页展示字段（详情接口返回全字段） */
-const LIST_FIELDS = 'id, name, town, heritage_level, damage, built_year, style, cover_url, is_red_site'
+const LIST_FIELDS = 'id, name, town, heritage_level, damage, built_year, era, style, cover_url, is_red_site'
 
 /** GET /api/stages/meta/towns — 乡镇下拉选项（去重） */
 stages.get('/meta/towns', async (c) => {
   const rows = await c.env.DB.prepare('SELECT DISTINCT town FROM stages WHERE town != \'\' ORDER BY town').all()
   return c.json({ list: rows.results.map((r: any) => r.town) })
+})
+
+/** GET /api/stages/meta/damages — 保护现状（破损程度）筛选选项（去重，按出现频率排序） */
+stages.get('/meta/damages', async (c) => {
+  const rows = await c.env.DB.prepare(
+    "SELECT damage, COUNT(*) AS cnt FROM stages WHERE damage != '' AND damage != '/' GROUP BY damage ORDER BY cnt DESC"
+  ).all()
+  return c.json({ list: rows.results.map((r: any) => r.damage) })
 })
 
 /** GET /api/stages — 列表：乡镇/文保等级/破损程度/红色旧址/关键词 + 分页 */
@@ -53,6 +71,7 @@ stages.get('/', async (c) => {
   if (q.heritage_level) { conds.push('heritage_level = ?'); args.push(q.heritage_level) }
   if (q.damage) { conds.push('damage = ?'); args.push(q.damage) }
   if (q.is_red_site === '1' || q.is_red_site === 'true') { conds.push('is_red_site = 1') }
+  if (q.is_red_site === '0' || q.is_red_site === 'false') { conds.push('is_red_site = 0') }
   if (q.keyword) {
     conds.push('(name LIKE ? OR town LIKE ? OR history_text LIKE ? OR red_story LIKE ?)')
     const kw = `%${q.keyword}%`
@@ -138,23 +157,27 @@ ${block('村民口述', r.audio_url ? `音频：${r.audio_url}` : '')}
 </body></html>`)
 })
 
-/** POST /api/stages — 新增戏台（政企管理员） */
+/** POST /api/stages — 新增戏台（团队/政企） */
 stages.post('/', authMiddleware, requireRole('team', 'admin'), async (c) => {
   const body = await c.req.json().catch(() => null)
   const f = pickStageFields(body)
   if (!f.name) return c.json({ error: '戏台名称不能为空' }, 400)
   if (!HERITAGE_LEVELS.includes(f.heritage_level)) return c.json({ error: '文保等级不正确' }, 400)
-  if (!DAMAGES.includes(f.damage)) return c.json({ error: '破损程度不正确' }, 400)
 
   const result = await c.env.DB.prepare(
-    `INSERT INTO stages (name, town, heritage_level, damage, built_year, style, history_text, red_story, repair_log, audio_url, lng, lat, cover_url, is_red_site)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-  ).bind(f.name, f.town, f.heritage_level, f.damage, f.built_year, f.style, f.history_text, f.red_story, f.repair_log, f.audio_url, f.lng, f.lat, f.cover_url, f.is_red_site).run()
+    `INSERT INTO stages (name, name_en, town, province, city, address, ancestral_hall, heritage_level, heritage_batch, heritage_date, heritage_type, era, built_year, style, damage, history_text, red_story, repair_log, media_links, oral_history, audio_url, lng, lat, cover_url, is_red_site)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+  ).bind(
+    f.name, f.name_en, f.town, f.province, f.city, f.address, f.ancestral_hall, f.heritage_level,
+    f.heritage_batch, f.heritage_date, f.heritage_type, f.era, f.built_year, f.style, f.damage,
+    f.history_text, f.red_story, f.repair_log, f.media_links, f.oral_history, f.audio_url,
+    f.lng, f.lat, f.cover_url, f.is_red_site,
+  ).run()
 
   return c.json({ success: true, id: result.meta.last_row_id }, 201)
 })
 
-/** PUT /api/stages/:id — 更新戏台（政企管理员） */
+/** PUT /api/stages/:id — 更新戏台（团队/政企） */
 stages.put('/:id', authMiddleware, requireRole('team', 'admin'), async (c) => {
   const id = Number(c.req.param('id'))
   if (!Number.isInteger(id) || id <= 0) return c.json({ error: '参数错误' }, 400)
@@ -164,8 +187,13 @@ stages.put('/:id', authMiddleware, requireRole('team', 'admin'), async (c) => {
   if (!f.name) return c.json({ error: '戏台名称不能为空' }, 400)
 
   const result = await c.env.DB.prepare(
-    `UPDATE stages SET name = ?, town = ?, heritage_level = ?, damage = ?, built_year = ?, style = ?, history_text = ?, red_story = ?, repair_log = ?, audio_url = ?, lng = ?, lat = ?, cover_url = ?, is_red_site = ?, updated_at = datetime('now','localtime') WHERE id = ?`
-  ).bind(f.name, f.town, f.heritage_level, f.damage, f.built_year, f.style, f.history_text, f.red_story, f.repair_log, f.audio_url, f.lng, f.lat, f.cover_url, f.is_red_site, id).run()
+    `UPDATE stages SET name = ?, name_en = ?, town = ?, province = ?, city = ?, address = ?, ancestral_hall = ?, heritage_level = ?, heritage_batch = ?, heritage_date = ?, heritage_type = ?, era = ?, built_year = ?, style = ?, damage = ?, history_text = ?, red_story = ?, repair_log = ?, media_links = ?, oral_history = ?, audio_url = ?, lng = ?, lat = ?, cover_url = ?, is_red_site = ?, updated_at = datetime('now','localtime') WHERE id = ?`
+  ).bind(
+    f.name, f.name_en, f.town, f.province, f.city, f.address, f.ancestral_hall, f.heritage_level,
+    f.heritage_batch, f.heritage_date, f.heritage_type, f.era, f.built_year, f.style, f.damage,
+    f.history_text, f.red_story, f.repair_log, f.media_links, f.oral_history, f.audio_url,
+    f.lng, f.lat, f.cover_url, f.is_red_site, id,
+  ).run()
 
   if (result.meta.changes === 0) return c.json({ error: '戏台不存在' }, 404)
   return c.json({ success: true, id })

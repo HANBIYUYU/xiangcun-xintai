@@ -4,7 +4,7 @@ import { stagesAPI, redPlaysAPI, articlesAPI, activitiesAPI, productsAPI, faqAPI
 
 const LEVEL_COLOR: Record<string, string> = { 国家级: 'red', 省级: 'volcano', 市级: 'gold', 县级: 'blue', 未定级: 'default' };
 
-/* ---------------- 戏台档案（政企） ---------------- */
+/* ---------------- 戏台档案（政企 + 团队） ---------------- */
 export const StagesAdminConfig: CrudConfig = {
   title: '戏台档案管理',
   rowKey: 'id',
@@ -17,28 +17,46 @@ export const StagesAdminConfig: CrudConfig = {
       title: '文保等级', dataIndex: 'heritage_level', width: 100,
       render: (v: string) => <Tag color={LEVEL_COLOR[v] || 'default'}>{v}</Tag>,
     },
-    { title: '破损程度', dataIndex: 'damage', width: 90 },
+    { title: '保护现状', dataIndex: 'damage', width: 130, ellipsis: true },
+    { title: '时代', dataIndex: 'era', width: 110 },
+    { title: '始建年份', dataIndex: 'built_year', width: 150, ellipsis: true },
     {
       title: '红色旧址', dataIndex: 'is_red_site', width: 90,
       render: (v: number) => (v ? <Tag color="red">是</Tag> : <Tag>否</Tag>),
     },
-    { title: '始建年代', dataIndex: 'built_year', width: 120 },
   ],
   fields: [
+    // 身份
     { name: 'name', label: '戏台名称', required: true },
-    { name: 'town', label: '所属乡镇', span: 1 },
+    { name: 'name_en', label: '英文标题', span: 1 },
+    { name: 'is_red_site', label: '红色旧址', type: 'switch', span: 1 },
+    // 属地
+    { name: 'town', label: '所属镇村', span: 1 },
+    { name: 'province', label: '省', span: 1 },
+    { name: 'city', label: '市', span: 1 },
+    { name: 'address', label: '详细地址', span: 1 },
+    { name: 'ancestral_hall', label: '所属宗祠', span: 1 },
+    // 文保
     { name: 'heritage_level', label: '文保等级', type: 'select', span: 1, options: ['国家级', '省级', '市级', '县级', '未定级'].map((v) => ({ value: v, label: v })) },
-    { name: 'damage', label: '破损程度', type: 'select', span: 1, options: ['完好', '较好', '一般', '破损', '濒危'].map((v) => ({ value: v, label: v })) },
-    { name: 'built_year', label: '始建年代', span: 1 },
+    { name: 'heritage_batch', label: '文保批次', span: 1 },
+    { name: 'heritage_date', label: '公布时间', span: 1 },
+    { name: 'heritage_type', label: '文保类型', span: 1 },
+    // 建筑与保护
+    { name: 'era', label: '时代', span: 1 },
+    { name: 'built_year', label: '始建年份', span: 1 },
     { name: 'style', label: '建筑形制', span: 1 },
+    { name: 'damage', label: '保护现状', span: 1 },
+    // 坐标与素材
     { name: 'lng', label: '经度', type: 'number', span: 1 },
     { name: 'lat', label: '纬度', type: 'number', span: 1 },
     { name: 'cover_url', label: '封面图 URL', span: 1 },
-    { name: 'is_red_site', label: '红色旧址', type: 'switch', span: 1 },
+    // 内容
     { name: 'history_text', label: '建筑史料', type: 'textarea' },
-    { name: 'red_story', label: '红色革命事迹', type: 'textarea' },
     { name: 'repair_log', label: '修缮记录', type: 'textarea' },
-    { name: 'audio_url', label: '口述音频 URL', span: 1 },
+    { name: 'red_story', label: '红色革命事迹', type: 'textarea' },
+    { name: 'media_links', label: '网络资料链接', type: 'textarea' },
+    { name: 'oral_history', label: '村民口述访谈（文字）', type: 'textarea' },
+    { name: 'audio_url', label: '口述音频 URL（备用）', span: 1 },
   ],
   defaultValues: { heritage_level: '未定级', damage: '较好', is_red_site: false },
 };

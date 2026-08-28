@@ -8,7 +8,6 @@ import { stagesAPI } from '../api';
 const { Option } = Select;
 
 const HERITAGE_LEVELS = ['国家级', '省级', '市级', '县级', '未定级'];
-const DAMAGES = ['完好', '较好', '一般', '破损', '濒危'];
 
 const LEVEL_COLOR: Record<string, string> = {
   国家级: 'red', 省级: 'volcano', 市级: 'gold', 县级: 'blue', 未定级: 'default',
@@ -17,7 +16,7 @@ const LEVEL_COLOR: Record<string, string> = {
 interface Filters {
   town?: string;
   heritage_level?: string;
-  damage?: string;
+  is_red_site?: string;
   keyword?: string;
 }
 
@@ -100,13 +99,14 @@ export default function ArchivePage() {
           {HERITAGE_LEVELS.map((h) => <Option key={h} value={h}>{h}</Option>)}
         </Select>
         <Select
-          placeholder="破损程度"
+          placeholder="红色旧址"
           allowClear
-          style={{ width: 140 }}
-          value={filters.damage}
-          onChange={(v) => { setPage(1); setFilters((f) => ({ ...f, damage: v })); }}
+          style={{ width: 130 }}
+          value={filters.is_red_site}
+          onChange={(v) => { setPage(1); setFilters((f) => ({ ...f, is_red_site: v })); }}
         >
-          {DAMAGES.map((d) => <Option key={d} value={d}>{d}</Option>)}
+          <Option value="1">红色旧址</Option>
+          <Option value="0">非红色旧址</Option>
         </Select>
         <Input.Search
           placeholder="搜索名称 / 乡镇 / 史料关键词"
@@ -142,12 +142,9 @@ export default function ArchivePage() {
                       {s.is_red_site ? <Tag color="red" style={{ marginLeft: 6 }}>红色旧址</Tag> : null}
                     </div>
                     <div style={{ fontSize: 12, color: '#666', marginBottom: 6 }}>
-                      {s.town} · {s.built_year || '年代待考'}
+                      {s.town} · {s.era || s.built_year || '年代待考'}
                     </div>
-                    <Space size={4}>
-                      <Tag color={LEVEL_COLOR[s.heritage_level] || 'default'}>{s.heritage_level}</Tag>
-                      <Tag>{s.damage}</Tag>
-                    </Space>
+                    <Tag color={LEVEL_COLOR[s.heritage_level] || 'default'}>{s.heritage_level}</Tag>
                   </div>
                 </div>
               </Link>

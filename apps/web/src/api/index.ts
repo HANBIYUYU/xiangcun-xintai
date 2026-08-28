@@ -52,6 +52,7 @@ export const stagesAPI = {
   list: (params?: PageParams) => api.get('/stages', { params }),
   detail: (id: number | string) => api.get(`/stages/${id}`),
   metaTowns: () => api.get('/stages/meta/towns'),
+  metaDamages: () => api.get('/stages/meta/damages'),
   create: (data: unknown) => api.post('/stages', data),
   update: (id: number | string, data: unknown) => api.put(`/stages/${id}`, data),
   remove: (id: number | string) => api.delete(`/stages/${id}`),

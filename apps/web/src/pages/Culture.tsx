@@ -39,6 +39,29 @@ export default function CulturePage() {
 
   const items = [
     {
+      key: 'reading',
+      label: `互动阅读（${articles.length}）`,
+      children: loading ? (
+        <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
+      ) : articles.length === 0 ? (
+        <Empty description="暂无阅读内容" />
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {articles.map((a) => (
+            <Card key={a.id} hoverable size="small" onClick={() => setReading(a)}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+                <div style={{ fontWeight: 600 }}>{a.title}</div>
+                <Tag>{a.source || '湘村新台'}</Tag>
+              </div>
+              <div style={{ color: '#888', fontSize: 13, marginTop: 6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {a.content || '（正文待补录）'}
+              </div>
+            </Card>
+          ))}
+        </div>
+      ),
+    },
+    {
       key: 'plays',
       label: `红色戏曲（${plays.length}）`,
       children: (
@@ -63,29 +86,6 @@ export default function CulturePage() {
             </Card>
           ))}
           {plays.length === 0 && !loading && <Empty description="暂无戏曲内容" />}
-        </div>
-      ),
-    },
-    {
-      key: 'reading',
-      label: `互动阅读（${articles.length}）`,
-      children: loading ? (
-        <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
-      ) : articles.length === 0 ? (
-        <Empty description="暂无阅读内容" />
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {articles.map((a) => (
-            <Card key={a.id} hoverable size="small" onClick={() => setReading(a)}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
-                <div style={{ fontWeight: 600 }}>{a.title}</div>
-                <Tag>{a.source || '湘村新台'}</Tag>
-              </div>
-              <div style={{ color: '#888', fontSize: 13, marginTop: 6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {a.content || '（正文待补录）'}
-              </div>
-            </Card>
-          ))}
         </div>
       ),
     },

@@ -22,7 +22,18 @@ const numbers = [
 
 const WIDE_NUMBER = { value: 32, suffix: '万+', label: '媒体报道浏览量', note: '青春上海、学习强国等平台' };
 
-const mediaList = ['青春上海', '学习强国', '新湖南', '郴州广电', '湖南日报', '红网'];
+// 媒体报道（数据补充3）：有报道链接的徽章可点击跳转；另加官方账号卡片
+const mediaList: { name: string; url?: string }[] = [
+  { name: '青春上海', url: 'http://www.why.com.cn/wx/article/2026/03/04/17726168971404821956.html' },
+  { name: '学习强国', url: 'https://article.xuexi.cn/articles/index.html?art_id=6217813018884946740' },
+  { name: '新湖南', url: 'https://m.voc.com.cn/rmt/article/15899060.html' },
+  { name: '郴州广电', url: 'http://share.ngcz.tv/folder34/folder35/folder43/folder51/2026-02-25/apDzeCAQVai6d64f.html' },
+  { name: '湖南日报' },
+  { name: '红网' },
+  // 官方账号卡片
+  { name: '微信公众号', url: 'https://mp.weixin.qq.com/s/sc36XFpk1IkWGSQTfWKHsw' },
+  { name: 'B站账号', url: 'https://space.bilibili.com/488827288' },
+];
 
 /** 数字递增动画（easeOutExpo） */
 function useCountUp(target: number, active: boolean, duration = 1500) {
@@ -115,12 +126,24 @@ export default function AboutSection() {
           </div>
         </div>
 
-        {/* 底部整栏：媒体徽章 marquee */}
+        {/* 底部整栏：媒体徽章 marquee（有报道链接的徽章可点击跳转） */}
         <div className="media-marquee">
           <div className="media-track">
-            {[...mediaList, ...mediaList].map((m, i) => (
-              <span key={`${m}-${i}`} className="media-badge">{m}</span>
-            ))}
+            {[...mediaList, ...mediaList].map((m, i) =>
+              m.url ? (
+                <a
+                  key={`${m.name}-${i}`}
+                  className="media-badge"
+                  href={m.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {m.name} ↗
+                </a>
+              ) : (
+                <span key={`${m.name}-${i}`} className="media-badge">{m.name}</span>
+              )
+            )}
           </div>
         </div>
       </div>
