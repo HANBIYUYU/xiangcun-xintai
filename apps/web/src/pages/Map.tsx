@@ -4,6 +4,7 @@ import type { FeatureCollection, Feature } from 'geojson'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import TransparentNav from '../components/TransparentNav'
+import ThematicMaps from '../components/ThematicMaps'
 
 type StageProperties = {
   OBJECTID?: number
@@ -579,6 +580,7 @@ export default function MapPage() {
             )}
           </div>
         </div>
+        <ThematicMaps />
       </section>
     </div>
   )
