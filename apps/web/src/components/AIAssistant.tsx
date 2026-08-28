@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { CloseOutlined, SendOutlined, RobotOutlined } from '@ant-design/icons'
 import { aiChatAPI } from '../api'
 
@@ -31,6 +31,7 @@ const STORAGE_KEY = 'xc_ai_history'
  * 左下角气泡胶囊 → 点击展开聊天窗（窗口可拖拽）；全站可见（App 级挂载）
  */
 export default function AIAssistant() {
+  const { pathname } = useLocation()
   const [open, setOpen] = useState(false)
   const [entered, setEntered] = useState(false)
   const [typing, setTyping] = useState(false)
@@ -47,6 +48,9 @@ export default function AIAssistant() {
   })
   const listRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
+
+  // 管理后台不显示台小湘
+  if (pathname.startsWith('/admin')) return null
 
   // 3 秒后气泡滑入
   useEffect(() => {
@@ -265,7 +269,7 @@ export default function AIAssistant() {
                       boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
                     }}>
                     {c.image ? (
-                      <div style={{ height: 90, background: `url(${c.image}) center/cover no-repeat` }} />
+                      <div style={{ height: 90, background: `url(${c.image.replace('/stage-images/', '/stage-images/thumb-')}) center/cover no-repeat` }} />
                     ) : (
                       <div style={{ height: 40, background: 'linear-gradient(135deg,#A3232B,#C0392B)' }} />
                     )}

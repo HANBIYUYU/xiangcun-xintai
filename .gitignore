@@ -5,6 +5,9 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# ===== 图片原图备份（大体积，不入库） =====
+原图备份_stage-images/
+
 # ===== pnpm =====
 .pnpm-store/
 .pnpm-workspace-state-v1.json

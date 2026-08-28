@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { Select, Input, Button, Pagination, Empty, Spin, Space, Tag, message } from 'antd';
 import { SearchOutlined, FileExcelOutlined } from '@ant-design/icons';
 import PageLayout from '../components/PageLayout';
+import LazyImage from '../components/LazyImage';
+import { thumbUrl } from '../utils/image';
 import { stagesAPI } from '../api';
 
 const { Option } = Select;
@@ -133,7 +135,7 @@ export default function ArchivePage() {
                 <div style={{ borderRadius: 8, overflow: 'hidden', background: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
                   <div style={{ height: 140, background: 'linear-gradient(135deg,#A3232B,#C0392B)' }}>
                     {s.cover_url
-                      ? <img src={s.cover_url} alt={s.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ? <LazyImage src={thumbUrl(s.cover_url)} alt={s.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       : null}
                   </div>
                   <div style={{ padding: 12 }}>

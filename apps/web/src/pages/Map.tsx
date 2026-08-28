@@ -164,7 +164,7 @@ export default function MapPage() {
     const imageName = safeText(props.图片, '')
 
     const imageUrl = imageName
-      ? `/assets/map/stage-images/${encodeURIComponent(
+      ? `/assets/map/stage-images/thumb-${encodeURIComponent(
           imageName
         )}`
       : ''
@@ -197,6 +197,7 @@ export default function MapPage() {
           <img
             src="${imageUrl}"
             alt="${name}"
+            loading="lazy"
             style="
               display:block;
               width:100%;

@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Button, Spin, Tag, Space, Descriptions, message, Result } from 'antd';
 import { ArrowLeftOutlined, FilePdfOutlined, AudioOutlined } from '@ant-design/icons';
 import PageLayout from '../components/PageLayout';
+import LazyImage from '../components/LazyImage';
 import { stagesAPI } from '../api';
 
 const LEVEL_COLOR: Record<string, string> = {
@@ -75,10 +76,10 @@ export default function ArchiveDetailPage() {
         </Space>
       </div>
 
-      {/* 图片框：16:9 比例、限宽居中 */}
+      {/* 图片框：16:9 比例、限宽居中（详情大图 1600px，懒加载） */}
       <div style={{ maxWidth: 960, margin: '0 auto 20px', aspectRatio: '16/9', borderRadius: 12, overflow: 'hidden', background: 'linear-gradient(135deg,#A3232B,#C0392B,#D4A017)' }}>
         {stage.cover_url
-          ? <img src={stage.cover_url} alt={stage.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }} />
+          ? <LazyImage src={stage.cover_url} alt={stage.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }} />
           : null}
       </div>
 
