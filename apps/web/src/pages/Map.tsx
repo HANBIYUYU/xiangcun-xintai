@@ -3,7 +3,7 @@ import { GeoJSON, MapContainer, TileLayer } from 'react-leaflet'
 import type { FeatureCollection, Feature } from 'geojson'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import TransparentNav from '../components/TransparentNav'
+import PageLayout from '../components/PageLayout'
 import ThematicMaps from '../components/ThematicMaps'
 
 type StageProperties = {
@@ -394,77 +394,29 @@ export default function MapPage() {
   }
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        background: '#F6F1E8',
-      }}
-    >
-      <TransparentNav />
+    <PageLayout background="#F6F1E8">
+      {/* 页头：统一大标题（与 Hero 同款衬线字体） */}
+      <div className="page-heading">
+        <h1 className="text-h1">桂阳古戏台空间图谱</h1>
+        <p className="text-body">
+          基于实地调查与 ArcGIS 空间数据构建的桂阳县古戏台数字地图
+        </p>
+      </div>
 
-      <section
+      <div
         style={{
-          maxWidth: 1440,
-          margin: '0 auto',
-          padding: '120px 30px 46px',
+          position: 'relative',
+          width: '100%',
+          height: '72vh',
+          minHeight: 580,
+          overflow: 'hidden',
+          border: '1px solid rgba(116,80,62,0.10)',
+          borderRadius: 20,
+          background: '#EDE6DC',
+          boxShadow:
+            '0 14px 42px rgba(76,52,41,0.10)',
         }}
       >
-        <div
-          style={{
-            marginBottom: 28,
-          }}
-        >
-          <div
-            style={{
-              marginBottom: 10,
-              color: '#9B1F1A',
-              fontSize: 14,
-              fontWeight: 700,
-              letterSpacing: '0.16em',
-            }}
-          >
-            XIANGCUN XINTAI
-          </div>
-
-          <h1
-            style={{
-              margin: '0 0 14px 0',
-              color: '#3E2D27',
-              fontSize: 40,
-              lineHeight: 1.25,
-              fontWeight: 700,
-            }}
-          >
-            桂阳古戏台空间图谱
-          </h1>
-
-          <p
-            style={{
-              margin: 0,
-              color: '#725E53',
-              fontSize: 15,
-              lineHeight: 1.8,
-            }}
-          >
-            基于实地调查与 ArcGIS
-            空间数据构建的桂阳县古戏台数字地图
-          </p>
-        </div>
-
-        <div
-          style={{
-            position: 'relative',
-            width: '100%',
-            height: '72vh',
-            minHeight: 580,
-            overflow: 'hidden',
-            border: '1px solid rgba(116,80,62,0.10)',
-            borderRadius: 20,
-            background: '#EDE6DC',
-            boxShadow:
-              '0 14px 42px rgba(76,52,41,0.10)',
-          }}
-        >
           <MapContainer
             center={[25.78, 112.76]}
             zoom={10}
@@ -580,8 +532,9 @@ export default function MapPage() {
             )}
           </div>
         </div>
-        <ThematicMaps />
-      </section>
-    </div>
+        <div style={{ marginTop: 60 }}>
+          <ThematicMaps />
+        </div>
+    </PageLayout>
   )
 }

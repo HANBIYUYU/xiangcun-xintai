@@ -1,6 +1,6 @@
 import { Tag } from 'antd';
 import type { CrudConfig } from './AdminCrudPage';
-import { stagesAPI, redPlaysAPI, articlesAPI, activitiesAPI, productsAPI, faqAPI } from '../../api';
+import { stagesAPI, redPlaysAPI, articlesAPI, activitiesAPI, productsAPI, faqAPI, newsAPI } from '../../api';
 
 const LEVEL_COLOR: Record<string, string> = { 国家级: 'red', 省级: 'volcano', 市级: 'gold', 县级: 'blue', 未定级: 'default' };
 
@@ -67,8 +67,7 @@ export const RedPlaysAdminConfig: CrudConfig = {
   defaultValues: { category: '折子戏', sort_order: 0 },
 };
 
-/* ---------------- 互动阅读（团队） ---------------- */
-export const ArticlesAdminConfig: CrudConfig = {
+/* ---------------- 互动阅读（团队） ---------------- */export const ArticlesAdminConfig: CrudConfig = {
   title: '互动阅读管理',
   rowKey: 'id',
   api: articlesAPI,
@@ -160,5 +159,49 @@ export const FaqAdminConfig: CrudConfig = {
     { name: 'question', label: '问题', required: true },
     { name: 'keywords', label: '关键词（逗号分隔）', span: 1 },
     { name: 'answer', label: '答案', type: 'textarea', required: true },
+  ],
+};
+
+/* ---------------- 首页影像（团队）— 首页短片区，固定 category=演出视频 ---------------- */
+export const FilmsAdminConfig: CrudConfig = {
+  title: '首页影像管理',
+  rowKey: 'id',
+  api: redPlaysAPI,
+  listParams: { category: '演出视频' },
+  fixedValues: { category: '演出视频' },
+  columns: [
+    { title: 'ID', dataIndex: 'id', width: 60 },
+    { title: '标题', dataIndex: 'title' },
+    {
+      title: '排序', dataIndex: 'sort_order', width: 100,
+      render: (v: number) => <Tag color="blue">{v}</Tag>,
+    },
+    { title: '封面 URL', dataIndex: 'cover_url', ellipsis: true },
+  ],
+  fields: [
+    { name: 'title', label: '短片标题', required: true },
+    { name: 'sort_order', label: '排序（小到大）', type: 'number', span: 1 },
+    { name: 'iframe_src', label: '嵌入地址 iframe_src', span: 1 },
+    { name: 'cover_url', label: '封面图 URL', span: 1 },
+  ],
+  defaultValues: { sort_order: 0 },
+};
+
+/* ---------------- 首页动态（团队）— 首页新闻区 ---------------- */
+export const NewsAdminConfig: CrudConfig = {
+  title: '首页动态管理',
+  rowKey: 'id',
+  api: newsAPI,
+  columns: [
+    { title: 'ID', dataIndex: 'id', width: 60 },
+    { title: '标题', dataIndex: 'title' },
+    { title: '日期', dataIndex: 'date', width: 120 },
+    { title: '封面 URL', dataIndex: 'cover_url', ellipsis: true },
+  ],
+  fields: [
+    { name: 'title', label: '标题', required: true },
+    { name: 'date', label: '日期（如 2026-08-21）', span: 1 },
+    { name: 'cover_url', label: '封面图 URL', span: 1 },
+    { name: 'content', label: '正文内容', type: 'textarea' },
   ],
 };

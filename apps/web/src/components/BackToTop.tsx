@@ -25,13 +25,12 @@ export default function BackToTop() {
         bottom: 32,
         right: 32,
         zIndex: 99,
-        width: 44,
-        height: 44,
-        borderRadius: 14,
-        border: '1px solid rgba(163, 35, 43, 0.2)',
-        background: 'rgba(255, 255, 255, 0.9)',
-        backdropFilter: 'blur(8px)',
-        color: '#A3232B',
+        width: 48,
+        height: 48,
+        borderRadius: '50%',
+        border: '1px solid rgba(43, 29, 26, 0.10)',
+        background: '#FAF7F2',
+        color: '#2B1D1A',
         fontSize: 18,
         cursor: 'pointer',
         display: 'flex',
@@ -40,16 +39,18 @@ export default function BackToTop() {
         opacity: visible ? 1 : 0,
         transform: visible ? 'translateY(0)' : 'translateY(16px)',
         pointerEvents: visible ? 'auto' : 'none',
-        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-        boxShadow: '0 4px 16px rgba(163, 35, 43, 0.15)',
+        transition: 'opacity 0.3s ease, transform 0.3s ease, box-shadow 0.2s ease',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.10)',
       }}
       onMouseEnter={(e) => {
-        (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-2px) scale(1.05)';
-        (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 24px rgba(163, 35, 43, 0.25)';
+        (e.currentTarget as HTMLButtonElement).style.transform = visible ? 'translateY(-4px)' : 'translateY(16px)';
+        (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 20px rgba(0, 0, 0, 0.16)';
+        (e.currentTarget as HTMLButtonElement).style.color = '#A3232B';
       }}
       onMouseLeave={(e) => {
-        (e.currentTarget as HTMLButtonElement).style.transform = visible ? 'translateY(0) scale(1)' : 'translateY(16px) scale(1)';
-        (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 16px rgba(163, 35, 43, 0.15)';
+        (e.currentTarget as HTMLButtonElement).style.transform = visible ? 'translateY(0)' : 'translateY(16px)';
+        (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.10)';
+        (e.currentTarget as HTMLButtonElement).style.color = '#2B1D1A';
       }}
     >
       <UpOutlined />

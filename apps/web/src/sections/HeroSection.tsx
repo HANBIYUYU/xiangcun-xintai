@@ -1,173 +1,147 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  LeftOutlined,
+  RightOutlined,
+  DownOutlined,
+  BankOutlined,
+  EnvironmentOutlined,
+  DeploymentUnitOutlined,
+  ReadOutlined,
+  ShoppingOutlined,
+} from '@ant-design/icons';
+import { scrollToSection } from '../utils/scroll';
+import { statsAPI } from '../api';
 
 /**
- * 轮播：5 张桂阳古戏台影像（素材未整理 → public/assets/hero/hero-1~5.jpg，1440×630）
- * 未放图时自动回退到 CSS 渐变面板；标题/文案可在下方 slides 数组中修改
+ * 首屏 Hero（redo 方案）：
+ * 全屏古戏台摄影滑窗（手动切换，不自动轮播）
+ * + 标题区（左中偏上） + 底部 5 张入口卡片 + 弹跳向下箭头
+ * 未放图时回退到暗色渐变面板
  */
 const slides = [
-  {
-    key: 'slide-1',
-    title: '桂阳古戏台',
-    caption: '影像 1 / 5',
-    gradient: 'linear-gradient(135deg, #7A141B 0%, #A3232B 60%, #C0392B 100%)',
-    bg: '/assets/hero/hero-1.jpg',
-    tag: '戏台掠影',
-  },
-  {
-    key: 'slide-2',
-    title: '桂阳古戏台',
-    caption: '影像 2 / 5',
-    gradient: 'linear-gradient(135deg, #8A1B22 0%, #C0392B 45%, #D4A017 100%)',
-    bg: '/assets/hero/hero-2.jpg',
-    tag: '戏台掠影',
-  },
-  {
-    key: 'slide-3',
-    title: '桂阳古戏台',
-    caption: '影像 3 / 5',
-    gradient: 'linear-gradient(135deg, #7A141B 0%, #8E2B22 50%, #D4A017 100%)',
-    bg: '/assets/hero/hero-3.jpg',
-    tag: '戏台掠影',
-  },
-  {
-    key: 'slide-4',
-    title: '桂阳古戏台',
-    caption: '影像 4 / 5',
-    gradient: 'linear-gradient(135deg, #6B141B 0%, #A3232B 55%, #C9A227 100%)',
-    bg: '/assets/hero/hero-4.jpg',
-    tag: '戏台掠影',
-  },
-  {
-    key: 'slide-5',
-    title: '桂阳古戏台',
-    caption: '影像 5 / 5',
-    gradient: 'linear-gradient(135deg, #7A141B 0%, #B03A2B 50%, #D4A017 100%)',
-    bg: '/assets/hero/hero-5.jpg',
-    tag: '戏台掠影',
-  },
+  { key: 'slide-1', bg: '/assets/hero/hero-1.jpg' },
+  { key: 'slide-2', bg: '/assets/hero/hero-2.jpg' },
+  { key: 'slide-3', bg: '/assets/hero/hero-3.jpg' },
+  { key: 'slide-4', bg: '/assets/hero/hero-4.jpg' },
+  { key: 'slide-5', bg: '/assets/hero/hero-5.jpg' },
+];
+
+const entrances = [
+  { key: 'archive', icon: <BankOutlined />, title: '戏台数字档案', desc: '动态档案数', path: '/archive' },
+  { key: 'map', icon: <EnvironmentOutlined />, title: '古戏台数字地图', desc: '在桂阳山水间定位百年戏台', path: '/map' },
+  { key: 'hall', icon: <DeploymentUnitOutlined />, title: '三维古建展厅', desc: '走进戏台内部，看梁架结构', path: '/3d' },
+  { key: 'culture', icon: <ReadOutlined />, title: '红色湘昆文化馆', desc: '湘昆腔韵与红色戏台记忆', path: '/culture' },
+  { key: 'mall', icon: <ShoppingOutlined />, title: '乡村文旅商城', desc: '把戏台记忆带回家', path: '/mall' },
 ];
 
 export default function HeroSection() {
-  const navigate = useNavigate();
   const [active, setActive] = useState(0);
+  const [stageCount, setStageCount] = useState<number | null>(null);
+  const navigate = useNavigate();
 
+  // 档案数动态读数据库（/api/stats），不写死
+  useEffect(() => {
+    statsAPI.overview().then((res: any) => setStageCount(res.stages ?? null)).catch(() => undefined);
+  }, []);
+
+  // 每 8 秒自动切换一张滑窗（手动点击箭头/圆点仍可切换）
   useEffect(() => {
     const timer = setInterval(() => {
       setActive((prev) => (prev + 1) % slides.length);
-    }, 6000);
+    }, 8000);
     return () => clearInterval(timer);
   }, []);
 
+  const goTo = (i: number) => setActive((i + slides.length) % slides.length);
+
+  // 档案卡描述：真实数据库数量
+  const archiveDesc = stageCount != null
+    ? `查阅 ${stageCount} 座文保戏台的数字化档案`
+    : '查阅桂阳各级文保戏台的数字化档案';
+  const entranceCards = entrances.map((e) =>
+    e.key === 'archive' ? { ...e, desc: archiveDesc } : e
+  );
+
   return (
-    <section
-      id="hero"
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        position: 'relative',
-        overflow: 'hidden',
-        background: 'linear-gradient(135deg, #A3232B 0%, #C0392B 45%, #D4A017 100%)',
-        padding: 'clamp(64px, 9vh, 120px) 24px clamp(48px, 6vh, 80px)',
-      }}
-    >
-      {/* 装饰光晕（呼吸动画） */}
-      <div
-        className="hero-orb"
-        style={{
-          position: 'absolute',
-          top: '38%',
-          right: '2%',
-          width: 420,
-          height: 420,
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(255, 255, 255, 0.28) 0%, transparent 72%)',
-          pointerEvents: 'none',
-        }}
-      />
-      <div
-        className="hero-orb"
-        style={{
-          position: 'absolute',
-          bottom: '12%',
-          left: '4%',
-          width: 320,
-          height: 320,
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(212, 160, 23, 0.35) 0%, transparent 70%)',
-          pointerEvents: 'none',
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          top: '30%',
-          left: '22%',
-          width: 180,
-          height: 180,
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(255, 255, 255, 0.22) 0%, transparent 70%)',
-          pointerEvents: 'none',
-        }}
-      />
+    <section id="hero" className="hero-root">
+      {/* 背景滑窗层（暗色渐变回退 + 实拍图 + 暗化遮罩） */}
+      {slides.map((s, i) => (
+        <div
+          key={s.key}
+          className={`hero-slide-bg${i === active ? ' active' : ''}`}
+          style={{
+            backgroundImage: `url(${s.bg}), linear-gradient(135deg, #2B1D1A 0%, #4A3B38 100%)`,
+          }}
+        />
+      ))}
 
-      <div
-        style={{
-          textAlign: 'center',
-          maxWidth: 860,
-          position: 'relative',
-          zIndex: 1,
-          width: '100%',
-        }}
+      {/* 左右切换箭头 */}
+      <button
+        className="hero-arrow left"
+        aria-label="上一张"
+        onClick={() => goTo(active - 1)}
       >
-        <span className="hero-badge">桂阳古戏台 · 红色文旅数字官网</span>
+        <LeftOutlined />
+      </button>
+      <button
+        className="hero-arrow right"
+        aria-label="下一张"
+        onClick={() => goTo(active + 1)}
+      >
+        <RightOutlined />
+      </button>
 
-        <h1 className="hero-title">湘村新台</h1>
-
-        <div className="hero-subtitle">让百年戏台在数字时代重焕红色光芒</div>
-
-        <p className="hero-desc">
-          以数字档案、三维重建、红色湘昆与乡土共创，讲好桂阳古戏台的红色故事，
-          让乡村文旅在数字世界里持续生长。
-        </p>
-
-        <div className="hero-actions">
-          <button className="btn-primary" onClick={() => navigate('/archive')}>探索戏台档案</button>
-          <button className="btn-secondary" onClick={() => navigate('/3d')}>进入三维展厅</button>
+      <div className="hero-inner">
+        {/* 标题区：左中偏上 */}
+        <div className="hero-text">
+          <h1 className="hero-title">湘村新台</h1>
+          <p className="hero-subtitle">让百年戏台在数字时代重焕红色光芒</p>
+          <button className="btn-explore" onClick={() => scrollToSection('story')}>
+            开始探索
+          </button>
         </div>
 
-        {/* 轮播：5 张戏台影像（有图用图，无图回退渐变） */}
-        <div className="hero-carousel">
-          {slides.map((s, i) => (
+        {/* 底部入口卡片（融入首屏） */}
+        <div className="hero-entrances">
+          {entranceCards.map((e) => (
             <div
-              key={s.key}
-              className={`hero-slide${i === active ? ' active' : ''}`}
-              style={{
-                background: `linear-gradient(to top, rgba(15, 10, 8, 0.62) 0%, rgba(15, 10, 8, 0.18) 45%, rgba(15, 10, 8, 0) 72%), url(${s.bg}) center / cover no-repeat, ${s.gradient}`,
+              key={e.key}
+              className="entrance-chip"
+              role="button"
+              tabIndex={0}
+              onClick={() => navigate(e.path)}
+              onKeyDown={(ev) => {
+                if (ev.key === 'Enter' || ev.key === ' ') navigate(e.path);
               }}
             >
-              <div className="hero-slide-meta">
-                <span className="hero-slide-tag">{s.tag}</span>
-                <span className="hero-slide-title">{s.title}</span>
-                <span className="hero-slide-caption">{s.caption}</span>
-              </div>
+              <div className="entrance-chip-icon">{e.icon}</div>
+              <div className="entrance-chip-title">{e.title}</div>
+              <div className="entrance-chip-desc">{e.desc}</div>
+              <span className="entrance-chip-go">进入 →</span>
             </div>
           ))}
         </div>
+      </div>
 
+      {/* 底部栏：圆点指示器 + 影像计数 */}
+      <div className="hero-bottom">
         <div className="hero-dots">
           {slides.map((s, i) => (
             <button
               key={s.key}
               className={`hero-dot${i === active ? ' active' : ''}`}
-              aria-label={`切换到${s.title}`}
+              aria-label={`切换到影像 ${i + 1}`}
               onClick={() => setActive(i)}
             />
           ))}
         </div>
+        <span className="hero-counter">影像 {active + 1} / {slides.length}</span>
+      </div>
+
+      {/* 弹跳向下箭头 */}
+      <div className="hero-chevron" role="button" aria-label="向下探索" onClick={() => scrollToSection('story')}>
+        <DownOutlined />
       </div>
     </section>
   );

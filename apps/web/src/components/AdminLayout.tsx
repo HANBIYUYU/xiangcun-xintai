@@ -5,19 +5,22 @@ import { authAPI } from '../api'
 
 const { Sider, Content } = Layout
 
-/** 菜单定义：key / 标题 / 可见角色（undefined 表示全部） */
+/** 菜单定义：key / 标题 / 可见角色（undefined 表示 team + admin 均可见）
+ * 权限（2026-08-21）：admin 仅 戏台档案 / 活动预告 / 订单；其余归 team（含新增的首页影像、首页动态） */
 const MENU_DEFS = [
   { key: '/admin/dashboard', label: '仪表盘' },
-  { key: '/admin/stages', label: '戏台档案', roles: ['admin'] },
+  { key: '/admin/stages', label: '戏台档案' },
   { key: '/admin/red-plays', label: '红色戏曲', roles: ['team'] },
+  { key: '/admin/films', label: '首页影像', roles: ['team'] },
+  { key: '/admin/news', label: '首页动态', roles: ['team'] },
   { key: '/admin/articles', label: '互动阅读', roles: ['team'] },
   { key: '/admin/activities', label: '活动预告' },
   { key: '/admin/submissions', label: '投稿审核', roles: ['team'] },
-  { key: '/admin/suggestions', label: '建言归档' },
+  { key: '/admin/suggestions', label: '建言归档', roles: ['team'] },
   { key: '/admin/quiz', label: '题库', roles: ['team'] },
-  { key: '/admin/bookings', label: '研学预约' },
+  { key: '/admin/bookings', label: '研学预约', roles: ['team'] },
   { key: '/admin/products', label: '商品', roles: ['team'] },
-  { key: '/admin/orders', label: '订单', roles: ['team', 'admin'] },
+  { key: '/admin/orders', label: '订单' },
   { key: '/admin/faq', label: '问答库', roles: ['team'] },
 ]
 

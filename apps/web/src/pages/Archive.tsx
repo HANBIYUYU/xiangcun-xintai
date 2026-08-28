@@ -27,7 +27,7 @@ export default function ArchivePage() {
   const [list, setList] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(12);
+  const [pageSize] = useState(24);
   const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState<Filters>({});
   const [keywordInput, setKeywordInput] = useState('');
@@ -127,7 +127,7 @@ export default function ArchivePage() {
         {list.length === 0 && !loading ? (
           <Empty description="未找到符合条件的戏台，试试放宽筛选条件" />
         ) : (
-          <div className="archive-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 16 }}>
+          <div className="archive-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 20 }}>
             {list.map((s) => (
               <Link key={s.id} to={`/archive/${s.id}`} className="card-hover" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
                 <div style={{ borderRadius: 8, overflow: 'hidden', background: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>

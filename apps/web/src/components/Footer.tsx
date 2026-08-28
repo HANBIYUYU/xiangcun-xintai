@@ -20,8 +20,8 @@ export default function Footer() {
           {/* 站点简介 */}
           <div
             style={{
-              fontSize: 24,
-              fontWeight: 800,
+              fontSize: 20,
+              fontWeight: 600,
               color: '#FAF7F2',
               letterSpacing: '-0.02em',
               marginBottom: 8,
@@ -48,14 +48,15 @@ export default function Footer() {
             让百年戏台在数字时代重焕红色光芒
           </p>
 
-          {/* 快捷链接 */}
+          {/* 快捷链接（· 分隔） */}
           <div
             style={{
               display: 'flex',
-              gap: 32,
+              gap: 24,
               marginBottom: 24,
               flexWrap: 'wrap',
               justifyContent: 'center',
+              alignItems: 'center',
             }}
           >
             {[
@@ -67,28 +68,32 @@ export default function Footer() {
               { label: '文创商城', to: '/mall' },
               { label: 'AI 助手', to: '/ai' },
             ].map(
-              ({ label, to }) => (
-                <Link
-                  key={label}
-                  to={to}
-                  style={{
-                    fontSize: 14,
-                    color: 'rgba(255, 255, 255, 0.7)',
-                    textDecoration: 'none',
-                    display: 'inline-block',
-                    transition: 'all 0.3s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.target as HTMLAnchorElement).style.color = '#D4A017';
-                    (e.target as HTMLAnchorElement).style.transform = 'translateY(-2px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.target as HTMLAnchorElement).style.color = 'rgba(255, 255, 255, 0.7)';
-                    (e.target as HTMLAnchorElement).style.transform = 'translateY(0)';
-                  }}
-                >
-                  {label}
-                </Link>
+              ({ label, to }, i) => (
+                <span key={label} style={{ display: 'inline-flex', alignItems: 'center', gap: 24 }}>
+                  {i > 0 && (
+                    <span style={{ color: 'rgba(255, 255, 255, 0.35)', fontSize: 13 }}>·</span>
+                  )}
+                  <Link
+                    to={to}
+                    style={{
+                      fontSize: 14,
+                      color: 'rgba(255, 255, 255, 0.7)',
+                      textDecoration: 'none',
+                      display: 'inline-block',
+                      transition: 'all 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      (e.target as HTMLAnchorElement).style.color = '#D4A017';
+                      (e.target as HTMLAnchorElement).style.transform = 'translateY(-2px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.target as HTMLAnchorElement).style.color = 'rgba(255, 255, 255, 0.7)';
+                      (e.target as HTMLAnchorElement).style.transform = 'translateY(0)';
+                    }}
+                  >
+                    {label}
+                  </Link>
+                </span>
               )
             )}
           </div>
@@ -104,35 +109,40 @@ export default function Footer() {
             }}
           />
 
-          {/* 版权 */}
+          {/* 版权 + 管理入口 */}
           <div
             style={{
-              fontSize: 13,
-              color: 'rgba(255, 255, 255, 0.5)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              width: '100%',
+              maxWidth: 900,
+              flexWrap: 'wrap',
+              gap: 12,
             }}
           >
-            © 2026 湘村新台 · 保留所有权利
+            <div style={{ fontSize: 13, color: 'rgba(255, 255, 255, 0.5)' }}>
+              © 2026 湘村新台 · 保留所有权利
+            </div>
+            <Link
+              to="/admin/login"
+              style={{
+                fontSize: 14,
+                color: 'rgba(255, 255, 255, 0.4)',
+                textDecoration: 'none',
+                opacity: 0.4,
+                transition: 'opacity 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                (e.target as HTMLAnchorElement).style.opacity = '1';
+              }}
+              onMouseLeave={(e) => {
+                (e.target as HTMLAnchorElement).style.opacity = '0.4';
+              }}
+            >
+              管理入口 →
+            </Link>
           </div>
-
-          <Link
-            to="/admin/login"
-            style={{
-              fontSize: 12,
-              color: 'rgba(255, 255, 255, 0.4)',
-              textDecoration: 'none',
-              marginTop: 12,
-              opacity: 0.5,
-              transition: 'opacity 0.3s ease',
-            }}
-            onMouseEnter={(e) => {
-              (e.target as HTMLAnchorElement).style.opacity = '1';
-            }}
-            onMouseLeave={(e) => {
-              (e.target as HTMLAnchorElement).style.opacity = '0.5';
-            }}
-          >
-            管理入口
-          </Link>
         </div>
       </div>
     </footer>

@@ -1,4 +1,4 @@
-import { Hono } from 'hono'
+﻿import { Hono } from 'hono'
 import type { Env } from '../types'
 import { authMiddleware, requireRole } from '../middleware/auth'
 
@@ -139,7 +139,7 @@ ${block('村民口述', r.audio_url ? `音频：${r.audio_url}` : '')}
 })
 
 /** POST /api/stages — 新增戏台（政企管理员） */
-stages.post('/', authMiddleware, requireRole('admin'), async (c) => {
+stages.post('/', authMiddleware, requireRole('team', 'admin'), async (c) => {
   const body = await c.req.json().catch(() => null)
   const f = pickStageFields(body)
   if (!f.name) return c.json({ error: '戏台名称不能为空' }, 400)
@@ -155,7 +155,7 @@ stages.post('/', authMiddleware, requireRole('admin'), async (c) => {
 })
 
 /** PUT /api/stages/:id — 更新戏台（政企管理员） */
-stages.put('/:id', authMiddleware, requireRole('admin'), async (c) => {
+stages.put('/:id', authMiddleware, requireRole('team', 'admin'), async (c) => {
   const id = Number(c.req.param('id'))
   if (!Number.isInteger(id) || id <= 0) return c.json({ error: '参数错误' }, 400)
 
@@ -172,7 +172,7 @@ stages.put('/:id', authMiddleware, requireRole('admin'), async (c) => {
 })
 
 /** DELETE /api/stages/:id — 删除戏台（政企管理员） */
-stages.delete('/:id', authMiddleware, requireRole('admin'), async (c) => {
+stages.delete('/:id', authMiddleware, requireRole('team', 'admin'), async (c) => {
   const id = Number(c.req.param('id'))
   if (!Number.isInteger(id) || id <= 0) return c.json({ error: '参数错误' }, 400)
 

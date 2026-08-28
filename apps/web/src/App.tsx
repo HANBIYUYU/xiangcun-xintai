@@ -16,7 +16,7 @@ import AdminDashboard from './pages/Admin/Dashboard'
 import AdminCrudPage from './pages/Admin/AdminCrudPage'
 import {
   StagesAdminConfig, RedPlaysAdminConfig, ArticlesAdminConfig,
-  ActivitiesAdminConfig, ProductsAdminConfig, FaqAdminConfig,
+  ActivitiesAdminConfig, ProductsAdminConfig, FaqAdminConfig, FilmsAdminConfig, NewsAdminConfig,
 } from './pages/Admin/Resources'
 import { SubmissionsAdmin, SuggestionsAdmin, QuizAdmin, BookingsAdmin, OrdersAdmin } from './pages/Admin/SpecialPages'
 
@@ -53,6 +53,8 @@ function App() {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="stages" element={<AdminCrudPage config={StagesAdminConfig} />} />
           <Route path="red-plays" element={<AdminCrudPage config={RedPlaysAdminConfig} />} />
+          <Route path="films" element={<AdminCrudPage config={FilmsAdminConfig} />} />
+          <Route path="news" element={<AdminCrudPage config={NewsAdminConfig} />} />
           <Route path="articles" element={<AdminCrudPage config={ArticlesAdminConfig} />} />
           <Route path="activities" element={<AdminCrudPage config={ActivitiesAdminConfig} />} />
           <Route path="submissions" element={<SubmissionsAdmin />} />

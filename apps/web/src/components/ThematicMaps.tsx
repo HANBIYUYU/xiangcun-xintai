@@ -397,8 +397,8 @@ export default function ThematicMaps() {
 
       <section
         style={{
-          paddingTop: 72,
-          paddingBottom: 20,
+          paddingTop: 50,
+          paddingBottom: 50,
         }}
       >
         <div
@@ -406,25 +406,16 @@ export default function ThematicMaps() {
             marginBottom: 30,
           }}
         >
-          <div
-            style={{
-              marginBottom: 9,
-              color: '#9B1F1A',
-              fontSize: 13,
-              fontWeight: 700,
-              letterSpacing: '0.15em',
-            }}
-          >
-            THEMATIC MAPS
-          </div>
-
+          {/* 与全站大标题统一：衬线字体（Hero / 子页 text-h1 同款） */}
           <h2
             style={{
               margin: '0 0 12px',
+              fontFamily: 'var(--font-serif)',
               color: '#3E2D27',
-              fontSize: 30,
-              lineHeight: 1.35,
-              fontWeight: 700,
+              fontSize: 28,
+              lineHeight: 1.3,
+              fontWeight: 600,
+              letterSpacing: '0.04em',
             }}
           >
             专题地图成果

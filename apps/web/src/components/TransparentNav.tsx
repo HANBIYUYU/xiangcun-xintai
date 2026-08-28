@@ -6,15 +6,13 @@ const navItems = [
   { path: '/', label: '首页' },
   { path: '/archive', label: '档案' },
   { path: '/map', label: '地图' },
-  { path: '/3d', label: '三维展厅' },
+  { path: '/3d', label: '展厅' },
   { path: '/culture', label: '文化馆' },
   { path: '/community', label: '共创' },
-  { path: '/study', label: '研学' },
   { path: '/mall', label: '商城' },
-  { path: '/ai', label: 'AI' },
 ];
 
-export default function TransparentNav() {
+export default function TransparentNav({ solid = false }: { solid?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
@@ -30,6 +28,9 @@ export default function TransparentNav() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // solid：子页面常驻浅色毛玻璃（深色文字），不随滚动切换；首页顶部保持透明白字
+  const isSolid = solid || scrolled;
+
   const isActive = useCallback((path: string) => {
     if (path === '/') return location.pathname === '/';
     return location.pathname.startsWith(path);
@@ -44,7 +45,7 @@ export default function TransparentNav() {
     }
   }, [location.pathname, navigate]);
 
-  const linkColor = scrolled ? '#3B2A26' : '#fff';
+  const linkColor = isSolid ? '#3B2A26' : '#fff';
 
   return (
     <>
@@ -55,14 +56,15 @@ export default function TransparentNav() {
           left: '50%',
           transform: 'translateX(-50%)',
           zIndex: 100,
-          maxWidth: 1100,
-          width: 'calc(100% - 32px)',
+          maxWidth: 1280,
+          width: 'calc(100% - 48px)',
           padding: '14px 32px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
           borderRadius: scrolled ? 20 : 16,
+          // 背景仅随滚动变化：未滚动保持透明；文字颜色随页面深浅切换（isSolid）
           background: scrolled ? 'rgba(250, 247, 242, 0.88)' : 'transparent',
           backdropFilter: scrolled ? 'blur(16px) saturate(1.2)' : 'none',
           WebkitBackdropFilter: scrolled ? 'blur(16px) saturate(1.2)' : 'none',
@@ -84,7 +86,7 @@ export default function TransparentNav() {
             alignItems: 'center',
             gap: 8,
             transition: 'color 0.3s ease',
-            textShadow: scrolled ? 'none' : '0 2px 12px rgba(0,0,0,0.2)',
+            textShadow: isSolid ? 'none' : '0 2px 12px rgba(0,0,0,0.2)',
           }}
         >
           <img
@@ -95,7 +97,7 @@ export default function TransparentNav() {
               width: 'auto',
               objectFit: 'contain',
               borderRadius: 8,
-              background: scrolled ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.12)',
+              background: isSolid ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.12)',
               padding: 3,
             }}
           />
@@ -121,13 +123,13 @@ export default function TransparentNav() {
                 fontSize: 14,
                 whiteSpace: 'nowrap',
                 fontWeight: 500,
-                color: isActive(item.path) ? (scrolled ? '#A3232B' : '#FFD97A') : linkColor,
+                color: isActive(item.path) ? (isSolid ? '#A3232B' : '#FFD97A') : linkColor,
                 cursor: 'pointer',
                 padding: '4px 0',
-                borderBottom: isActive(item.path) ? `2px solid ${scrolled ? '#A3232B' : '#FFD97A'}` : '2px solid transparent',
+                borderBottom: isActive(item.path) ? `2px solid ${isSolid ? '#A3232B' : '#FFD97A'}` : '2px solid transparent',
                 transition: 'all 0.3s ease',
                 fontFamily: 'inherit',
-                textShadow: scrolled ? 'none' : '0 2px 12px rgba(0,0,0,0.2)',
+                textShadow: isSolid ? 'none' : '0 2px 12px rgba(0,0,0,0.2)',
               }}
             >
               {item.label}
@@ -138,9 +140,9 @@ export default function TransparentNav() {
             style={{
               padding: '6px 16px',
               borderRadius: 20,
-              border: scrolled ? '1px solid rgba(163, 35, 43, 0.3)' : '1px solid rgba(255,255,255,0.45)',
-              background: scrolled ? 'transparent' : 'rgba(255,255,255,0.14)',
-              color: scrolled ? '#A3232B' : '#fff',
+              border: isSolid ? '1px solid rgba(163, 35, 43, 0.3)' : '1px solid rgba(255,255,255,0.45)',
+              background: isSolid ? 'transparent' : 'rgba(255,255,255,0.14)',
+              color: isSolid ? '#A3232B' : '#fff',
               fontSize: 13,
               fontWeight: 600,
               cursor: 'pointer',
@@ -162,7 +164,7 @@ export default function TransparentNav() {
             fontSize: 20,
             color: linkColor,
             cursor: 'pointer',
-            textShadow: scrolled ? 'none' : '0 2px 12px rgba(0,0,0,0.2)',
+            textShadow: isSolid ? 'none' : '0 2px 12px rgba(0,0,0,0.2)',
           }}
           className="nav-mobile-btn"
         >
@@ -198,6 +200,8 @@ export default function TransparentNav() {
                 color: isActive(item.path) ? '#A3232B' : '#3B2A26',
                 cursor: 'pointer',
                 fontFamily: 'inherit',
+                borderLeft: isActive(item.path) ? '3px solid #A3232B' : '3px solid transparent',
+                paddingLeft: 14,
               }}
             >
               {item.label}
@@ -224,10 +228,10 @@ export default function TransparentNav() {
       )}
 
       <style>{`
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
           .nav-desktop { display: none !important; }
           .nav-mobile-btn { display: block !important; }
-          nav { top: 8px !important; padding: 12px 20px !important; width: calc(100% - 16px) !important; }
+          nav { top: 8px !important; padding: 12px 24px !important; width: calc(100% - 48px) !important; }
         }
       `}</style>
     </>

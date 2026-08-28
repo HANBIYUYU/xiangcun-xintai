@@ -27,6 +27,10 @@ export interface CrudConfig {
   columns: any[];
   fields: CrudField[];
   defaultValues?: Record<string, any>;
+  /** 列表请求固定附加参数（如按分类过滤） */
+  listParams?: Record<string, any>;
+  /** 新增时固定写入的字段（如 category） */
+  fixedValues?: Record<string, any>;
   rowColor?: (row: any) => string;
 }
 
@@ -41,7 +45,7 @@ export default function AdminCrudPage({ config }: { config: CrudConfig }) {
 
   const load = useCallback(() => {
     setLoading(true);
-    config.api.list({ pageSize: 200 })
+    config.api.list({ pageSize: 200, ...config.listParams })
       .then((res: any) => setRows(res.list || []))
       .catch(() => message.error('数据加载失败'))
       .finally(() => setLoading(false));
@@ -53,6 +57,7 @@ export default function AdminCrudPage({ config }: { config: CrudConfig }) {
     setEditing(null);
     form.resetFields();
     if (config.defaultValues) form.setFieldsValue(config.defaultValues);
+    if (config.fixedValues) form.setFieldsValue(config.fixedValues);
     setOpen(true);
   };
 
@@ -71,7 +76,7 @@ export default function AdminCrudPage({ config }: { config: CrudConfig }) {
         await config.api.update?.(editing[config.rowKey], values);
         message.success('已保存');
       } else {
-        await config.api.create?.(values);
+        await config.api.create?.({ ...config.fixedValues, ...values });
         message.success('已新增');
       }
       setOpen(false);

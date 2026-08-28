@@ -151,6 +151,9 @@ export const faqAPI = {
 // ============ 新闻 ============
 export const newsAPI = {
   list: (params?: PageParams) => api.get('/news', { params }),
+  create: (data: unknown) => api.post('/news', data),
+  update: (id: number | string, data: unknown) => api.put(`/news/${id}`, data),
+  remove: (id: number | string) => api.delete(`/news/${id}`),
 }
 
 // ============ 上传（R2 开通前为 stub） ============
