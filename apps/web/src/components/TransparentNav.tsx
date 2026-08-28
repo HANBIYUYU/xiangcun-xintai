@@ -5,6 +5,7 @@ import { MenuOutlined, CloseOutlined } from '@ant-design/icons';
 const navItems = [
   { path: '/', label: '首页' },
   { path: '/archive', label: '档案' },
+  { path: '/map', label: '地图' },
   { path: '/3d', label: '三维展厅' },
   { path: '/culture', label: '文化馆' },
   { path: '/community', label: '共创' },
