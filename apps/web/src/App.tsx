@@ -2,13 +2,13 @@ import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { Spin } from 'antd'
 import Home from './pages/Home'
+import AIAssistant from './components/AIAssistant'
 import ArchivePage from './pages/Archive'
 import ArchiveDetailPage from './pages/ArchiveDetail'
 import CulturePage from './pages/Culture'
 import CommunityPage from './pages/Community'
 import StudyPage from './pages/Study'
 import MallPage from './pages/Mall'
-import AIPage from './pages/AI'
 import MapPage from './pages/Map'
 import AdminLayout from './components/AdminLayout'
 import AdminLogin from './pages/Admin/Login'
@@ -33,8 +33,9 @@ function PageLoading() {
 
 function App() {
   return (
-    <Suspense fallback={<PageLoading />}>
-      <Routes>
+    <>
+      <Suspense fallback={<PageLoading />}>
+        <Routes>
         {/* 前台 */}
         <Route path="/" element={<Home />} />
         <Route path="/archive" element={<ArchivePage />} />
@@ -45,7 +46,6 @@ function App() {
         <Route path="/community" element={<CommunityPage />} />
         <Route path="/study" element={<StudyPage />} />
         <Route path="/mall" element={<MallPage />} />
-        <Route path="/ai" element={<AIPage />} />
 
         {/* 管理后台 */}
         <Route path="/admin" element={<AdminLayout />}>
@@ -68,8 +68,12 @@ function App() {
 
         {/* 未匹配路由回首页 */}
         <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Suspense>
+        </Routes>
+      </Suspense>
+
+      {/* AI 戏台助手：全站悬浮（左下角胶囊 → 聊天窗） */}
+      <AIAssistant />
+    </>
   )
 }
 

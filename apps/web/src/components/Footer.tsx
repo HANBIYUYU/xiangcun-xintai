@@ -66,7 +66,6 @@ export default function Footer() {
               { label: '乡土共创', to: '/community' },
               { label: '研学预约', to: '/study' },
               { label: '文创商城', to: '/mall' },
-              { label: 'AI 助手', to: '/ai' },
             ].map(
               ({ label, to }, i) => (
                 <span key={label} style={{ display: 'inline-flex', alignItems: 'center', gap: 24 }}>

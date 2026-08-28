@@ -149,6 +149,12 @@ export const faqAPI = {
   remove: (id: number | string) => api.delete(`/faq/${id}`),
 }
 
+// ============ AI 戏台助手（悬浮组件） ============
+export const aiChatAPI = {
+  ask: (data: { message: string; session_id?: string; context?: string[]; source?: string }) =>
+    api.post('/ai-chat', data, { skipAuthRedirect: true }),
+}
+
 // ============ 新闻 ============
 export const newsAPI = {
   list: (params?: PageParams) => api.get('/news', { params }),
