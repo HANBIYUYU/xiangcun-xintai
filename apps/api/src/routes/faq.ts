@@ -32,9 +32,9 @@ faq.post('/ask', async (c) => {
   })
 })
 
-/** GET /api/faq — 问答库列表（管理端用） */
+/** GET /api/faq — 问答库列表（管理端用；编号 0 的介绍语置顶，其余最新在前） */
 faq.get('/', authMiddleware, requireRole('team'), async (c) => {
-  const rows = await c.env.DB.prepare('SELECT id, question, keywords, answer FROM faq_entries ORDER BY id ASC').all()
+  const rows = await c.env.DB.prepare('SELECT id, question, keywords, answer FROM faq_entries ORDER BY (id = 0) DESC, id DESC').all()
   return c.json({ list: rows.results, total: rows.results.length })
 })
 

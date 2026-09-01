@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   Table, Button, Modal, Form, Input, InputNumber, Select, Switch, Space, Popconfirm, message, Tag, Spin,
 } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined } from '@ant-design/icons';
 
 const { TextArea } = Input;
 
@@ -52,6 +52,19 @@ export default function AdminCrudPage({ config }: { config: CrudConfig }) {
   }, [config]);
 
   useEffect(() => { load(); }, [load]);
+
+  // 轻量「实时同步」：窗口重新聚焦（切回本页面/其他标签页改完回来）时自动刷新列表
+  useEffect(() => {
+    const onFocus = () => {
+      if (document.visibilityState === 'visible') load();
+    };
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onFocus);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onFocus);
+    };
+  }, [load]);
 
   const openCreate = () => {
     setEditing(null);
@@ -120,9 +133,12 @@ export default function AdminCrudPage({ config }: { config: CrudConfig }) {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h2 style={{ margin: 0 }}>{config.title}</h2>
-        {config.api.create && (
-          <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>新增</Button>
-        )}
+        <Space>
+          <Button icon={<ReloadOutlined />} onClick={load}>刷新</Button>
+          {config.api.create && (
+            <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>新增</Button>
+          )}
+        </Space>
       </div>
 
       <Spin spinning={loading}>
@@ -130,8 +146,8 @@ export default function AdminCrudPage({ config }: { config: CrudConfig }) {
           rowKey={config.rowKey}
           columns={[...config.columns, actionColumn]}
           dataSource={rows}
-          pagination={{ pageSize: 10, showSizeChanger: false }}
-          scroll={{ x: 'max-content' }}
+          pagination={{ pageSize: 18, showSizeChanger: false }}
+          scroll={{ x: 'max-content', y: 'max(280px, calc(100vh - 240px))' }}
           size="small"
           rowClassName={(row) => (config.rowColor ? config.rowColor(row) : '')}
         />

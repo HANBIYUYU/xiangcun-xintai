@@ -12,16 +12,58 @@ interface ChatMsg {
   suggestions?: string[]
 }
 
+/** 对话树：根入口（5 个主题）→ 分支引导语 + 叶子问题 + 跳转入口按钮 → 叶子问答后给 2 个相邻问题 + 返回主菜单 */
+const AI_TREE: {
+  key: string
+  label: string
+  intro: string
+  questions: string[]
+  actions?: { label: string; url: string }[]
+}[] = [
+  {
+    key: 'kunqu',
+    label: '湘昆的小知识',
+    intro: '好呀，聊聊湘昆 🎭 湘昆是国家级非物质文化遗产，与昆曲同源，又带着湘南的腔韵，是桂阳古戏台上最鲜活的声腔。你想先了解哪方面？',
+    questions: ['湘昆和京剧有什么区别？', '湘昆有哪些经典剧目？', '桂阳为什么是湘昆的故乡？'],
+    actions: [{ label: '去文化馆看湘昆', url: '/culture' }],
+  },
+  {
+    key: 'study',
+    label: '关于研学预约',
+    intro: '研学中心提供「中小学红色思政」「高校非遗建筑实践」两类套餐，支持团体在线预约，研学成果也会在站内展示～ 想了解哪方面？',
+    questions: ['研学有哪些套餐？', '如何预约研学？', '研学成果在哪里看？'],
+    actions: [{ label: '去研学中心看看', url: '/study' }],
+  },
+  {
+    key: 'archive',
+    label: '关于戏台档案馆',
+    intro: '档案馆目前收录 52 座真实文保戏台的数字化档案，支持乡镇、文保等级、红色旧址、关键词筛选，还能导出 PDF / Excel 存档～ 想先了解什么？',
+    questions: ['档案馆收录了多少座戏台？', '如何筛选和查找戏台？', '戏台档案能导出吗？'],
+    actions: [{ label: '去档案馆逛逛', url: '/archive' }],
+  },
+  {
+    key: 'hall',
+    label: '关于三维展厅',
+    intro: '三维古建展厅用 Three.js 构建了可 720° 自由旋转缩放的戏台模型，点按构件还有结构介绍弹层～ 想了解什么？',
+    questions: ['展厅里能看到什么？', '如何旋转和缩放查看戏台？', '有真实戏台的模型吗？'],
+    actions: [{ label: '进入三维展厅', url: '/3d' }],
+  },
+  {
+    key: 'mall',
+    label: '关于文创商城',
+    intro: '文创商城有戏台主题明信片、徽章等周边，也帮农户代销烤烟、陶艺等桂阳特产；答题、投稿还能领优惠券抵扣～ 想了解什么？',
+    questions: ['有什么文创产品？', '如何下单购买？', '优惠券怎么使用？'],
+    actions: [{ label: '逛逛文创商城', url: '/mall' }],
+  },
+]
+
+const ROOT_LABELS = AI_TREE.map((b) => b.label)
+const MENU_BACK = '聊点别的'
+
 const OPENING: ChatMsg = {
   role: 'ai',
-  text: '你好！我是台小湘 🎭\n我可以帮你：查询古戏台的历史与现状、了解湘昆非遗、解读戏台建筑，或提供研学预约、商城购买等实用信息。试着点击下方问题，或直接输入～',
-  suggestions: [
-    '桂阳有多少座古戏台？',
-    '湘昆和京剧有什么区别？',
-    '戏台的建筑结构是怎样的？',
-    '如何预约研学？',
-    '有什么文创产品？',
-  ],
+  text: '你好呀！我是台小湘 🎭\n我能带你走进湘昆的世界，分享有趣的戏曲知识，也能帮你快速了解本站功能：研学预约、戏台档案馆、三维展厅等等。我还会讲述台前幕后的访谈故事，带你浏览官方推文、新闻报道，认识上海大学的红色公益项目。\n挑一个你感兴趣的话题，或者随便问我，咱们边聊边逛～',
+  suggestions: ROOT_LABELS,
 }
 
 const STORAGE_KEY = 'xc_ai_history'
@@ -34,7 +76,10 @@ export default function AIAssistant() {
   const { pathname } = useLocation()
   const [open, setOpen] = useState(false)
   const [entered, setEntered] = useState(false)
+  const [bubbleLeaving, setBubbleLeaving] = useState(false)
+  const [clearKey, setClearKey] = useState(0)
   const [typing, setTyping] = useState(false)
+  const [sendHover, setSendHover] = useState(false)
   const [input, setInput] = useState('')
   // 窗口位置：仅本次会话拖拽生效，关闭后重置回默认位置（不记忆）
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null)
@@ -46,11 +91,10 @@ export default function AIAssistant() {
       return [OPENING]
     }
   })
+  // 当前对话树分支（null = 主菜单）
+  const [currentBranch, setCurrentBranch] = useState<string | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
-
-  // 管理后台不显示台小湘
-  if (pathname.startsWith('/admin')) return null
 
   // 3 秒后气泡滑入
   useEffect(() => {
@@ -70,6 +114,16 @@ export default function AIAssistant() {
     if (listRef.current) listRef.current.scrollTop = listRef.current.scrollHeight
   }, [messages, typing, open])
 
+  // 点击气泡：气泡淡出（200ms）后再展开聊天窗
+  const openChat = () => {
+    if (bubbleLeaving) return
+    setBubbleLeaving(true)
+    window.setTimeout(() => {
+      setOpen(true)
+      setBubbleLeaving(false)
+    }, 200)
+  }
+
   const send = async (text: string) => {
     const q = text.trim()
     if (!q || typing) return
@@ -77,21 +131,47 @@ export default function AIAssistant() {
     setInput('')
     setTyping(true)
     try {
+      // 短暂停顿，模拟思考节奏
+      await new Promise((r) => window.setTimeout(r, 300))
+
+      // ① 聊点别的（返回主菜单）
+      if (q === MENU_BACK) {
+        setCurrentBranch(null)
+        setMessages((m) => [...m, { role: 'ai', text: '好的，来聊点别的～ 想了解哪个方向？', suggestions: ROOT_LABELS }])
+        return
+      }
+
+      // ② 树根入口 → 分支引导语 + 叶子问题 + 跳转入口按钮（不调 API）
+      const root = AI_TREE.find((b) => q === b.label || q.includes(b.label))
+      if (root) {
+        setCurrentBranch(root.key)
+        setMessages((m) => [...m, {
+          role: 'ai',
+          text: root.intro,
+          suggestions: root.questions,
+          actions: root.actions,
+        }])
+        return
+      }
+
+      // ③ 叶子问题/自由提问 → API 回答；回复后按当前分支给 2 个相邻问题 + 返回主菜单
+      const branch = AI_TREE.find((b) => b.key === currentBranch)
       const res: any = await aiChatAPI.ask({
         message: q,
         session_id: crypto.randomUUID(),
         context: messages.slice(-10).map((m) => m.text),
         source: 'homepage',
       })
+      const leftovers = branch ? branch.questions.filter((x) => x !== q).slice(0, 2) : []
       setMessages((m) => [...m, {
         role: 'ai',
         text: res.reply || '',
         cards: res.cards,
-        actions: res.actions,
-        suggestions: res.suggestions,
+        actions: branch?.actions ?? res.actions,
+        suggestions: branch ? [...leftovers, MENU_BACK] : ROOT_LABELS,
       }])
     } catch {
-      setMessages((m) => [...m, { role: 'ai', text: '抱歉，我走神了，请稍后再试～' }])
+      setMessages((m) => [...m, { role: 'ai', text: '抱歉，我走神了，请稍后再试～', suggestions: [MENU_BACK] }])
     } finally {
       setTyping(false)
     }
@@ -99,6 +179,8 @@ export default function AIAssistant() {
 
   const clearHistory = () => {
     setMessages([OPENING])
+    setCurrentBranch(null)
+    setClearKey((k) => k + 1) // 重建消息列表 → 开场白重新渐入
     localStorage.removeItem(STORAGE_KEY)
   }
 
@@ -135,13 +217,16 @@ export default function AIAssistant() {
     window.addEventListener('mouseup', onUp)
   }
 
+  // 管理后台不显示台小湘（必须在所有 hooks 之后提前返回，否则 hooks 数量不一致会报错）
+  if (pathname.startsWith('/admin')) return null
+
   return (
     <>
-      {/* ======== 折叠态：单个对话气泡（微信样式，带小尾巴） ======== */}
-      {!open && (
+      {/* ======== 折叠态：单个对话气泡（微信样式，带小尾巴）；退场动画期间即使窗口已开也保留渲染 ======== */}
+      {(!open || bubbleLeaving) && (
         <button
-          onClick={() => setOpen(true)}
-          className="ai-bubble"
+          onClick={openChat}
+          className={`ai-bubble${entered ? ' entered' : ''}${bubbleLeaving ? ' leaving' : ''}`}
           style={{
             position: 'fixed',
             left: 24,
@@ -160,9 +245,6 @@ export default function AIAssistant() {
             fontSize: 14,
             fontWeight: 600,
             fontFamily: 'inherit',
-            opacity: entered ? 1 : 0,
-            transform: entered ? 'translateX(0)' : 'translateX(-100px)',
-            transition: 'opacity 0.6s cubic-bezier(0.34,1.56,0.64,1), transform 0.6s cubic-bezier(0.34,1.56,0.64,1)',
           }}
         >
           <span className="ai-dot" />
@@ -237,14 +319,19 @@ export default function AIAssistant() {
           </div>
 
           {/* 消息区 */}
-          <div ref={listRef} style={{
-            flex: 1,
-            overflowY: 'auto',
-            padding: 16,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 12,
-          }}>
+          <div
+            ref={listRef}
+            key={clearKey}
+            className="ai-msg-list"
+            style={{
+              flex: 1,
+              overflowY: 'auto',
+              padding: 16,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 12,
+            }}
+          >
             {messages.map((m, i) => (
               <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: m.role === 'user' ? 'flex-end' : 'flex-start' }}>
                 <div style={{
@@ -336,11 +423,17 @@ export default function AIAssistant() {
             />
             <button
               onClick={() => send(input)}
+              onMouseEnter={() => { if (input.trim()) setSendHover(true) }}
+              onMouseLeave={() => setSendHover(false)}
               style={{
                 width: 36, height: 36, borderRadius: '50%', border: 'none',
-                background: input.trim() ? '#A3232B' : 'rgba(43,29,26,0.3)',
-                color: '#fff', cursor: input.trim() ? 'pointer' : 'default',
+                background: sendHover && input.trim() ? '#D4A017' : (input.trim() ? '#A3232B' : 'rgba(43,29,26,0.3)'),
+                color: sendHover && input.trim() ? '#2B1D1A' : '#fff',
+                cursor: input.trim() ? 'pointer' : 'default',
+                transform: sendHover && input.trim() ? 'scale(1.08)' : 'scale(1)',
+                boxShadow: sendHover && input.trim() ? '0 4px 12px rgba(163,35,43,0.4)' : 'none',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'background 0.3s ease, color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease',
               }}
             ><SendOutlined /></button>
           </div>
@@ -350,12 +443,40 @@ export default function AIAssistant() {
       <style>{`
         .ai-dot {
           width: 8px; height: 8px; border-radius: 50%;
-          background: #D4A017;
+          background: #D4A017; /* 常态金黄，悬停时变在线绿 */
           animation: ai-breathe 2s ease-in-out infinite;
         }
         @keyframes ai-breathe { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
-        /* 对话气泡 + 小尾巴（微信样式） */
-        .ai-bubble { position: fixed; }
+        /* 对话气泡 + 小尾巴（微信样式）
+           entrance：进入 3s 后滑入（.entered）；hover：简单变色（同「开始探索」按钮）；leaving：点击后直接淡出 */
+        .ai-bubble {
+          position: fixed;
+          opacity: 0;
+          transform: translateX(-100px);
+          transition:
+            opacity 0.6s ease,
+            transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+            box-shadow 0.3s ease,
+            background 0.3s ease,
+            color 0.3s ease;
+        }
+        .ai-bubble.entered {
+          opacity: 1;
+          transform: translateX(0);
+        }
+        .ai-bubble.leaving {
+          opacity: 0;
+          transform: translateX(0);
+          transition: opacity 0.2s ease;
+        }
+        .ai-bubble:hover:not(.leaving) {
+          background: #D4A017 !important; /* 整泡变色（覆盖内联红底），同「开始探索」按钮 */
+          color: #2B1D1A !important;
+          box-shadow: 0 8px 24px rgba(163, 35, 43, 0.35);
+        }
+        .ai-bubble:hover:not(.leaving) .ai-dot {
+          background: #52c41a; /* 悬停时小点从黄变绿（在线） */
+        }
         .ai-bubble::after {
           content: '';
           position: absolute;
@@ -363,13 +484,17 @@ export default function AIAssistant() {
           bottom: -5px;
           width: 10px;
           height: 10px;
-          background: #A3232B;
+          background: inherit; /* 逐帧跟随泡体颜色：悬停/退场渐变全程同色，不穿帮 */
           border-radius: 2px;
           transform: rotate(45deg);
         }
-        .ai-bubble:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 10px 28px rgba(163,35,43,0.45);
+        /* 清空对话后消息列表整体渐入 */
+        .ai-msg-list {
+          animation: ai-list-in 0.35s ease-out;
+        }
+        @keyframes ai-list-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
         .ai-typing-dot { animation: ai-typing 0.6s ease-in-out infinite; }
         .ai-typing-dot:nth-child(2) { animation-delay: 0.15s; }

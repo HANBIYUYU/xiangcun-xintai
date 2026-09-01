@@ -2,7 +2,7 @@
 
 桂阳古戏台红色文旅数字官网。以「戏台红 + 湘昆金 + 米白」为视觉主调，聚合古戏台数字档案、三维古建展厅、红色湘昆文化、乡土共创、研学预约、文创商城与 AI 智能问答的数字文旅平台。
 
-> 当前进度：**P0–P12 全部完成 ✅，已上线 Cloudflare（2026-08-21）**。前台九大模块 + 后台管理均为真实前后端实现；档案馆已接入 **42 座真实文保戏台数据**（GeoJSON 导入 + 真实图片）；新增 ArcGIS 交互地图与专题图集；后台含首页影像/首页动态管理；后续按 `docs/TODO.md` 推进（设计优化 → 数据补录 → 增强项）。
+> 当前进度：**P0–P15 全部完成 ✅，已上线 Cloudflare（2026-08-21 起多次迭代部署）**。前台九大模块 + 后台管理均为真实前后端实现；档案馆接入 **52 座真实文保戏台全字段数据**（GeoJSON + 补充台账：史料/宗祠/文保批次/保护现状原文/坐标/图片/网络资料）；ArcGIS 交互地图与专题图集；**台小湘 AI 悬浮助手**（树状对话：5 主题分支 + 叶子追问 + 跳转入口；日常闲聊：问候/天气/时间；介绍语以编号 0 入问答库）；媒体报道进文化馆互动阅读；图片加速（242MB → 20MB + 600px 缩略图 + 强缓存 + 懒加载）；页面切换渐入动画（后台除外）、首页数字卡片悬停/点击重播、后台列表自动刷新与固定一屏高滚动表格。后续按 `docs/TODO.md` 推进（域名绑定 → 数据补录 → 增强项）。
 
 ## 业务介绍
 
@@ -10,7 +10,7 @@
 
 | 环节 | 业务内容 | 面向用户 |
 |---|---|---|
-| **档案沉淀** | 桂阳各级文保戏台台账数字化（当前收录 **42 座真实文保戏台**，含建筑史料、文保等级、经纬度与实拍图），支持多条件检索与 PDF/Excel 导出，供乡镇文旅与党史办存档 | 游客 / 政企文旅部门 |
+| **档案沉淀** | 桂阳各级文保戏台台账数字化（当前收录 **52 座真实文保戏台**：史料/宗祠/文保批次/保护现状/坐标/实拍图/网络资料），支持多条件检索与 PDF/Excel 导出，供乡镇文旅与党史办存档 | 游客 / 政企文旅部门 |
 | **红色传播** | 三维古戏台展厅（720° 浏览）、红色湘昆文化馆（戏曲/阅读/活动）、专题短片与校地合作新闻，让红色记忆可看、可听、可互动 | 游客 / 研学团体 |
 | **用户共创** | 红色记忆投稿（老照片/口述/短视频）后台审核后公开展示；活化建言自动分类归档、可导出提交文旅局；戏台红色知识答题，通关发放电子优惠券 | 村民 / 游客 |
 | **研学转化** | 中小学思政与高校建筑实践两类套餐展示，团体在线预约生成预约单，后台确认排期；研学成果线上展示 | 学校 / 党团组织 |
@@ -65,20 +65,20 @@ xiangcun-xintai/
     ├── api/                      # Cloudflare Workers + Hono + D1
     │   ├── wrangler.toml         # dev / production 双环境；R2、KV 注释占位
     │   ├── migrations/           # 0001_init.sql：16 张表 + 索引
-    │   ├── seeds/                # seed.sql：管理员/110 戏台/40 题库/FAQ/商品等
+    │   ├── seeds/                # seed.sql：管理员/52 戏台/40 题库/38 FAQ/商品等；real_stages.sql+v4：真实戏台台账；media_articles.sql：13 篇媒体报道；faq_extra.sql：FAQ 扩充
     │   └── src/
     │       ├── index.ts          # Hono 入口：logger + cors + 健康检查 + 路由注册 + onError/notFound
     │       ├── types.ts          # Env / Admin / JWTPayload 类型
     │       ├── middleware/auth.ts# JWT 校验 + requireRole 角色中间件
-    │       └── routes/           # 16 个资源路由（auth/stages/red-plays/articles/activities/submissions/suggestions/quiz/bookings/study-plans/study-results/products/orders/coupons/faq/news/stats/upload）
+    │       └── routes/           # 19 个资源路由（auth/stages/red-plays/articles/activities/submissions/suggestions/quiz/bookings/study-plans/study-results/products/orders/coupons/faq/ai-chat/news/stats/upload）
     └── web/                      # React 18 + Vite + AntD + React Router
         └── src/
             ├── main.tsx          # ConfigProvider（zhCN + 红旅主题 token）
-            ├── App.tsx           # 前台 9 条路由 + 后台 12 条路由 + 兜底回首页
-            ├── api/index.ts      # axios 实例 + 全量资源 API 分组
+            ├── App.tsx           # 前台 9 条路由 + 后台 15 条路由 + 全站挂载台小湘 + 兜底回首页
+            ├── api/index.ts      # axios 实例 + 全量资源 API 分组（含 aiChatAPI）
             ├── styles/theme.css  # 红色文旅设计系统（CSS 变量 + 工具类）
-            ├── components/       # TransparentNav / Footer / BackToTop / FloatingNext / PageLayout / AdminLayout / Stage3D
-            ├── sections/         # HeroSection / EntrancesSection / StatsSection
+            ├── components/       # TransparentNav / Footer / PageLayout / AdminLayout / Stage3D / AIAssistant(台小湘) / LazyImage
+            ├── sections/         # HeroSection / AboutSection / MediaSection
             └── pages/            # 前台 9 页 + Admin（Login/Dashboard/CRUD/专项管理页）
 ```
 
@@ -96,8 +96,10 @@ P1 已通过种子脚本（`apps/api/seeds/seed.sql`）写入两个管理账号�
 ## 素材方案现状
 
 - **官方素材（图片 / GeoJSON 地图 / OBJ 3D / 短音频）**：打包进 Pages 静态目录 `apps/web/public/assets/`，随部署上线（Pages 限制：单文件 ≤25 MiB、Free 计划 ≤20,000 文件）。
+- **图片加速（✅ 已上线）**：`_headers` 强缓存（图片/JS/CSS 一年 immutable、HTML no-cache）；42 张戏台图压缩 234MB → 13MB（1600px q80）+ 600px 缩略图（44KB）；档案馆卡片/地图弹窗/台小湘用缩略图 + 懒加载；原图备份于 `原图备份_stage-images/`（gitignore）。
 - **视频**：长视频放 B 站，页面用官方 **裸 iframe**（`player.bilibili.com/player.html?bvid=...`）嵌入；后续可选 Cloudflare Stream 私有视频（无跳转、不公开，需外币卡）。
 - **R2 存储**：尚未开通，`wrangler.toml` 中已留注释占位；`/api/upload` 为占位实现，待 R2 开通后落地——用于**用户投稿上传**与超 25MiB 大文件；开通前素材以外链 URL 在后台录入。
+- **AI 台小湘**：左下角悬浮气泡助手（树状对话：湘昆/研学/档案馆/展厅/商城 5 主题分支 → 叶子追问 + 跳转入口按钮；日常闲聊：问候/天气/当前时间；气泡悬停变色、点击淡出后展开聊天窗）；问答库共 60 条（介绍语编号 0 置顶），后台「问答库」可统一管理；管理后台不显示。
 - 本地开发请勿提交 `.dev.vars` 与 `wrangler.toml.local`（已在 `.gitignore` 中排除）；生产 `JWT_SECRET` 请通过 Cloudflare secrets 覆盖。
 
 ## 主题

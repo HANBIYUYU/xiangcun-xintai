@@ -22,10 +22,46 @@ const DEFAULT_ACTIONS = [
   { label: '预约研学', url: '/study' },
 ]
 
+/** 日常闲聊：命中即答，不继续走知识库/戏台检索 */
+function smallTalk(msg: string): string | null {
+  const m = msg.toLowerCase()
+  if (/^(你好|您好|哈喽|哈罗|hello|hi|嗨|hey)/.test(m)) {
+    return '你好呀！我是台小湘 🎭\n我能带你走进湘昆的世界，分享有趣的戏曲知识，也能帮你快速了解本站功能：研学预约、戏台档案馆、三维展厅等等。我还会讲述台前幕后的访谈故事，带你浏览官方推文、新闻报道，认识上海大学的红色公益项目。\n挑一个你感兴趣的话题，或者随便问我，咱们边聊边逛～'
+  }
+  if (/^(在吗|在么|在不在)/.test(m)) {
+    return '在的，我一直都在～ 想问什么尽管说 🎭'
+  }
+  if (/天气|气温|下雨/.test(m)) {
+    return '我暂时还接不到实时天气数据，建议看看本地天气预报哦～ 在桂阳的话，很多古戏台在户外，雨天出门看戏记得带伞 ☔'
+  }
+  if (/几点|现在.*时间|时间.*现在/.test(m)) {
+    const d = new Date()
+    const hh = String(d.getHours()).padStart(2, '0')
+    const mm = String(d.getMinutes()).padStart(2, '0')
+    return `现在是 ${hh}:${mm}（服务器时间）～ 忙的时候也要记得歇一歇、喝口水 ☕`
+  }
+  if (/你是谁|你叫什么|自我介绍|介绍下你|介绍你/.test(m)) {
+    return '我是台小湘 🎭，湘村新台的 AI 助手——桂阳古戏台红色文旅的小导游。可以讲湘昆、查戏台档案、帮你预约研学、介绍文创商城，还能陪你闲聊～'
+  }
+  if (/谢谢|感谢|辛苦了/.test(m)) {
+    return '不客气～ 能帮上忙我就很开心！关于桂阳古戏台，随时欢迎来问我 🎭'
+  }
+  if (/再见|拜拜|下次见|回头聊/.test(m)) {
+    return '再见～ 古戏台的故事随时等你来听，下次见 🎭'
+  }
+  return null
+}
+
 aiChat.post('/', async (c) => {
   const body = await c.req.json().catch(() => null)
   const message = String(body?.message ?? '').trim()
   if (!message) return c.json({ error: '请输入问题' }, 400)
+
+  // ---------- 0) 日常闲聊（命中即答，不继续检索） ----------
+  const casual = smallTalk(message)
+  if (casual) {
+    return c.json({ reply: casual, cards: [], suggestions: FALLBACK_SUGGESTIONS, actions: [] })
+  }
 
   const db = c.env.DB
   const reply: string[] = []

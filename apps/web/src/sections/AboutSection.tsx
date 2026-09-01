@@ -35,11 +35,21 @@ const mediaList: { name: string; url?: string }[] = [
   { name: 'B站账号', url: 'https://space.bilibili.com/488827288' },
 ];
 
-/** 数字递增动画（easeOutExpo） */
-function useCountUp(target: number, active: boolean, duration = 1500) {
+/** 数字递增动画（easeOutExpo）：
+ *  - active 为 true：从 0 递增到 target；active 变 false：归零（滑出视口重置）
+ *  - retrigger 变化（悬停/点击）：即使 active 为 false 也强制从 0 重播一次
+ *    （修复：卡片可见但整个 section 未过 25% 阈值时，点击/悬停也能起播） */
+function useCountUp(target: number, active: boolean, retrigger = 0, duration = 1500) {
   const [value, setValue] = useState(0);
+  const prevRetrigger = useRef(retrigger);
   useEffect(() => {
-    if (!active) return;
+    const forced = retrigger !== prevRetrigger.current;
+    prevRetrigger.current = retrigger;
+    if (!active && !forced) {
+      setValue(0);
+      return;
+    }
+    setValue(0); // 重播前立即归零，确保从 0 起播（视觉上明显）
     let raf = 0;
     const start = performance.now();
     const tick = (now: number) => {
@@ -50,7 +60,7 @@ function useCountUp(target: number, active: boolean, duration = 1500) {
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [active, target, duration]);
+  }, [active, retrigger, target, duration]);
   return value;
 }
 
@@ -58,7 +68,10 @@ export default function AboutSection() {
   const ref = useRef<HTMLElement>(null);
   const [inView, setInView] = useState(false);
   const [dbCount, setDbCount] = useState<number | null>(null);
-  const wideValue = useCountUp(WIDE_NUMBER.value, inView);
+  // 宽卡（媒体报道浏览量）：悬停/点击重播
+  const [wideHover, setWideHover] = useState(false);
+  const [wideRetrigger, setWideRetrigger] = useState(0);
+  const wideValue = useCountUp(WIDE_NUMBER.value, inView || wideHover, wideRetrigger);
 
   // 「系统收录」动态读数据库，不写死
   useEffect(() => {
@@ -74,14 +87,10 @@ export default function AboutSection() {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    // 每次进入/离开视口都触发（不断开 observer），数字卡片每次滑到都重新递增
     const obs = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setInView(true);
-            obs.disconnect();
-          }
-        });
+        entries.forEach((entry) => setInView(entry.isIntersecting));
       },
       { threshold: 0.25 }
     );
@@ -110,7 +119,13 @@ export default function AboutSection() {
             {dynamicNumbers.map((n) => (
               <MiniStat key={n.label} {...n} active={inView} />
             ))}
-            <div className="stat-wide">
+            <div
+              className="stat-wide"
+              style={{ cursor: 'pointer' }}
+              onMouseEnter={() => { setWideHover(true); setWideRetrigger((t) => t + 1); }}
+              onMouseLeave={() => setWideHover(false)}
+              onClick={() => setWideRetrigger((t) => t + 1)}
+            >
               <div className="stat-wide-icon">
                 <RiseOutlined />
               </div>
@@ -154,9 +169,17 @@ export default function AboutSection() {
 function MiniStat({ value, suffix, label, note, active }: {
   value: number; suffix: string; label: string; note: string; active: boolean;
 }) {
-  const n = useCountUp(value, active);
+  const [hovered, setHovered] = useState(false);
+  const [retrigger, setRetrigger] = useState(0);
+  const n = useCountUp(value, active || hovered, retrigger);
   return (
-    <div className="stat-mini">
+    <div
+      className="stat-mini"
+      style={{ cursor: 'pointer' }}
+      onMouseEnter={() => { setHovered(true); setRetrigger((t) => t + 1); }}
+      onMouseLeave={() => setHovered(false)}
+      onClick={() => setRetrigger((t) => t + 1)}
+    >
       <div className="stat-mini-value">{n}{suffix}</div>
       <div className="stat-mini-label">{label}</div>
       <div className="stat-mini-divider" />

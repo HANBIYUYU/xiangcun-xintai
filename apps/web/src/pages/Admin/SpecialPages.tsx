@@ -46,7 +46,7 @@ export function SubmissionsAdmin() {
         <Table
           rowKey="id"
           size="small"
-          scroll={{ x: 'max-content' }}
+          scroll={{ x: 'max-content', y: 'max(280px, calc(100vh - 240px))' }}
           dataSource={rows}
           pagination={{ pageSize: 10 }}
           columns={[
@@ -108,7 +108,7 @@ export function SuggestionsAdmin() {
         <Table
           rowKey="id"
           size="small"
-          scroll={{ x: 'max-content' }}
+          scroll={{ x: 'max-content', y: 'max(280px, calc(100vh - 240px))' }}
           dataSource={rows}
           pagination={{ pageSize: 10 }}
           columns={[
@@ -191,7 +191,7 @@ export function QuizAdmin() {
         <Table
           rowKey="id"
           size="small"
-          scroll={{ x: 'max-content' }}
+          scroll={{ x: 'max-content', y: 'max(280px, calc(100vh - 240px))' }}
           dataSource={rows}
           pagination={{ pageSize: 10 }}
           columns={[
@@ -273,7 +273,7 @@ export function BookingsAdmin() {
         <Table
           rowKey="id"
           size="small"
-          scroll={{ x: 'max-content' }}
+          scroll={{ x: 'max-content', y: 'max(280px, calc(100vh - 240px))' }}
           dataSource={rows}
           pagination={{ pageSize: 10 }}
           columns={[
@@ -355,7 +355,7 @@ export function OrdersAdmin() {
         <Table
           rowKey="id"
           size="small"
-          scroll={{ x: 'max-content' }}
+          scroll={{ x: 'max-content', y: 'max(280px, calc(100vh - 240px))' }}
           dataSource={rows}
           pagination={{ pageSize: 10 }}
           columns={[

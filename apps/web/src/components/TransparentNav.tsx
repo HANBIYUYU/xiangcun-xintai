@@ -15,6 +15,9 @@ const navItems = [
 export default function TransparentNav({ solid = false }: { solid?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [hovered, setHovered] = useState<string | null>(null);
+  const [adminHover, setAdminHover] = useState(false);
+  const [menuHover, setMenuHover] = useState<string | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -50,12 +53,13 @@ export default function TransparentNav({ solid = false }: { solid?: boolean }) {
   return (
     <>
       <nav
+        className="xc-nav"
         style={{
           position: 'fixed',
           top: 12,
           left: '50%',
           transform: 'translateX(-50%)',
-          zIndex: 100,
+          zIndex: 1001,
           maxWidth: 1280,
           width: 'calc(100% - 48px)',
           padding: '14px 32px',
@@ -113,40 +117,58 @@ export default function TransparentNav({ solid = false }: { solid?: boolean }) {
           }}
           className="nav-desktop"
         >
-          {navItems.map((item) => (
-            <button
-              key={item.path}
-              onClick={() => go(item.path)}
-              style={{
-                background: 'none',
-                border: 'none',
-                fontSize: 14,
-                whiteSpace: 'nowrap',
-                fontWeight: 500,
-                color: isActive(item.path) ? (isSolid ? '#A3232B' : '#FFD97A') : linkColor,
-                cursor: 'pointer',
-                padding: '4px 0',
-                borderBottom: isActive(item.path) ? `2px solid ${isSolid ? '#A3232B' : '#FFD97A'}` : '2px solid transparent',
-                transition: 'all 0.3s ease',
-                fontFamily: 'inherit',
-                textShadow: isSolid ? 'none' : '0 2px 12px rgba(0,0,0,0.2)',
-              }}
-            >
-              {item.label}
-            </button>
-          ))}
+          {navItems.map((item) => {
+            const hov = hovered === item.path;
+            return (
+              <button
+                key={item.path}
+                onClick={() => go(item.path)}
+                onMouseEnter={() => setHovered(item.path)}
+                onMouseLeave={() => setHovered(null)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: 14,
+                  whiteSpace: 'nowrap',
+                  fontWeight: 500,
+                  color: hov
+                    ? (isSolid ? '#D4A017' : '#FFD97A')
+                    : isActive(item.path) ? (isSolid ? '#A3232B' : '#FFD97A') : linkColor,
+                  cursor: 'pointer',
+                  padding: '4px 0',
+                  borderBottom: hov
+                    ? `2px solid ${isSolid ? '#D4A017' : '#FFD97A'}`
+                    : isActive(item.path) ? `2px solid ${isSolid ? '#A3232B' : '#FFD97A'}` : '2px solid transparent',
+                  transform: hov ? 'translateY(-2px)' : 'translateY(0)',
+                  transition: 'all 0.3s ease',
+                  fontFamily: 'inherit',
+                  textShadow: isSolid ? 'none' : '0 2px 12px rgba(0,0,0,0.2)',
+                }}
+              >
+                {item.label}
+              </button>
+            );
+          })}
           <button
             onClick={() => go('/admin/dashboard')}
+            onMouseEnter={() => setAdminHover(true)}
+            onMouseLeave={() => setAdminHover(false)}
             style={{
               padding: '6px 16px',
               borderRadius: 20,
-              border: isSolid ? '1px solid rgba(163, 35, 43, 0.3)' : '1px solid rgba(255,255,255,0.45)',
-              background: isSolid ? 'transparent' : 'rgba(255,255,255,0.14)',
-              color: isSolid ? '#A3232B' : '#fff',
+              border: adminHover
+                ? '1px solid #A3232B'
+                : isSolid ? '1px solid rgba(163, 35, 43, 0.3)' : '1px solid rgba(255,255,255,0.45)',
+              background: adminHover
+                ? '#A3232B'
+                : isSolid ? 'transparent' : 'rgba(255,255,255,0.14)',
+              color: adminHover ? '#FAF7F2' : isSolid ? '#A3232B' : '#fff',
               fontSize: 13,
               fontWeight: 600,
               cursor: 'pointer',
               fontFamily: 'inherit',
+              transform: adminHover ? 'translateY(-2px)' : 'translateY(0)',
+              boxShadow: adminHover ? '0 6px 16px rgba(163,35,43,0.35)' : 'none',
               transition: 'all 0.3s ease',
             }}
           >
@@ -175,10 +197,11 @@ export default function TransparentNav({ solid = false }: { solid?: boolean }) {
       {/* Mobile Menu Overlay */}
       {mobileOpen && (
         <div
+          className="xc-menu-overlay"
           style={{
             position: 'fixed',
             inset: 0,
-            zIndex: 99,
+            zIndex: 1000,
             background: 'rgba(250, 247, 242, 0.96)',
             backdropFilter: 'blur(20px)',
             display: 'flex',
@@ -188,38 +211,50 @@ export default function TransparentNav({ solid = false }: { solid?: boolean }) {
             gap: 28,
           }}
         >
-          {navItems.map((item) => (
-            <button
-              key={item.path}
-              onClick={() => go(item.path)}
-              style={{
-                background: 'none',
-                border: 'none',
-                fontSize: 24,
-                fontWeight: 600,
-                color: isActive(item.path) ? '#A3232B' : '#3B2A26',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-                borderLeft: isActive(item.path) ? '3px solid #A3232B' : '3px solid transparent',
-                paddingLeft: 14,
-              }}
-            >
-              {item.label}
-            </button>
-          ))}
+          {navItems.map((item) => {
+            const mh = menuHover === item.path;
+            return (
+              <button
+                key={item.path}
+                onClick={() => go(item.path)}
+                onMouseEnter={() => setMenuHover(item.path)}
+                onMouseLeave={() => setMenuHover(null)}
+                style={{
+                  background: mh ? 'rgba(163, 35, 43, 0.08)' : 'transparent',
+                  border: 'none',
+                  fontSize: 24,
+                  fontWeight: 600,
+                  color: mh ? '#A3232B' : isActive(item.path) ? '#A3232B' : '#3B2A26',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  borderLeft: isActive(item.path) ? '3px solid #A3232B' : '3px solid transparent',
+                  padding: '4px 16px',
+                  borderRadius: 8,
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                {item.label}
+              </button>
+            );
+          })}
           <button
             onClick={() => go('/admin/dashboard')}
+            onMouseEnter={() => setMenuHover('__admin')}
+            onMouseLeave={() => setMenuHover(null)}
             style={{
               marginTop: 12,
               padding: '10px 28px',
               borderRadius: 24,
-              border: '1px solid rgba(163, 35, 43, 0.3)',
-              background: 'transparent',
-              color: '#A3232B',
+              border: menuHover === '__admin'
+                ? '1px solid #A3232B'
+                : '1px solid rgba(163, 35, 43, 0.3)',
+              background: menuHover === '__admin' ? '#A3232B' : 'transparent',
+              color: menuHover === '__admin' ? '#FAF7F2' : '#A3232B',
               fontSize: 16,
               fontWeight: 600,
               cursor: 'pointer',
               fontFamily: 'inherit',
+              transition: 'all 0.3s ease',
             }}
           >
             后台管理
@@ -228,6 +263,9 @@ export default function TransparentNav({ solid = false }: { solid?: boolean }) {
       )}
 
       <style>{`
+        .nav-mobile-btn { transition: transform 0.25s ease, color 0.3s ease; }
+        .nav-mobile-btn:hover { transform: scale(1.12); }
+        .nav-mobile-btn:active { transform: scale(0.92); }
         @media (max-width: 1024px) {
           .nav-desktop { display: none !important; }
           .nav-mobile-btn { display: block !important; }
