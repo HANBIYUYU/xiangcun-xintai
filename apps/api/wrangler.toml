@@ -1,4 +1,4 @@
-﻿name = "xiangcun-xintai-api"
+name = "xiangcun-xintai-api"
 main = "src/index.ts"
 compatibility_date = "2026-07-20"
 
@@ -14,10 +14,10 @@ binding = "DB"
 database_name = "xiangcun-xintai-db"
 database_id = "5cfb4b23-fbcb-47e0-a0e1-c972a8b8ec55"
 
-# R2 存储 - TODO: P2 上传功能启用后配置
-# [[r2_buckets]]
-# binding = "BUCKET"
-# bucket_name = "xiangcun-xintai-assets"
+# R2 存储（2026-08 已开通）：用户投稿/素材文件
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "xiangcun-xintai-assets"
 
 # KV 命名空间 - TODO: 创建后填入 id
 # [[kv_namespaces]]
@@ -36,6 +36,9 @@ d1_databases = [
 
 [env.production]
 vars = { ENVIRONMENT = "production", JWT_SECRET = "6ccdf3ce827f0be1f357e24fade3912635ce8bf986ae9cc1eb5435d280ff7b39" }
+r2_buckets = [
+  { binding = "BUCKET", bucket_name = "xiangcun-xintai-assets" }
+]
 d1_databases = [
   { binding = "DB", database_name = "xiangcun-xintai-db", database_id = "5cfb4b23-fbcb-47e0-a0e1-c972a8b8ec55" }
 ]

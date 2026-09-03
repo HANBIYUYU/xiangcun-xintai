@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import {
-  Tabs, Form, Input, Select, Button, Radio, Card, Tag, Spin, Empty, Alert, message, Space, Typography,
+  Tabs, Form, Input, Select, Button, Radio, Card, Tag, Spin, Empty, Alert, message, Space, Typography, Upload,
 } from 'antd';
-import { SendOutlined, TrophyOutlined, CopyOutlined } from '@ant-design/icons';
+import { SendOutlined, TrophyOutlined, CopyOutlined, UploadOutlined } from '@ant-design/icons';
 import PageLayout from '../components/PageLayout';
-import { submissionsAPI, suggestionsAPI, quizAPI } from '../api';
+import { submissionsAPI, suggestionsAPI, quizAPI, uploadAPI } from '../api';
 
 const { TextArea } = Input;
 const { Text, Paragraph } = Typography;
@@ -35,6 +35,8 @@ export default function CommunityPage() {
 function SubmitTab() {
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [mediaFile, setMediaFile] = useState<{ name: string; url: string } | null>(null);
   const [list, setList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -45,12 +47,32 @@ function SubmitTab() {
       .finally(() => setLoading(false));
   }, []);
 
+  // 选择文件后直接上传 R2，成功后把 URL 写入表单 media_url
+  const customUpload = async (options: any) => {
+    const { file, onSuccess, onError } = options;
+    setUploading(true);
+    try {
+      const res: any = await uploadAPI.upload(file as File);
+      const url = res.url;
+      form.setFieldValue('media_url', url);
+      setMediaFile({ name: (file as File).name, url });
+      message.success('素材上传成功');
+      onSuccess?.(res);
+    } catch (e: any) {
+      message.error(e?.error || '素材上传失败，请重试');
+      onError?.(e);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const onFinish = async (v: any) => {
     setSubmitting(true);
     try {
       await submissionsAPI.submit(v);
       message.success('投稿已提交，审核通过后将公开展示');
       form.resetFields();
+      setMediaFile(null);
     } catch (e: any) {
       message.error(e?.error || '提交失败');
     } finally {
@@ -74,8 +96,20 @@ function SubmitTab() {
           <Form.Item name="content" label="内容描述" rules={[{ required: true, message: '请填写内容' }]}>
             <TextArea rows={4} placeholder="老照片拍摄年代与场景 / 口述故事 / 短视频说明" />
           </Form.Item>
-          <Form.Item name="media_url" label="素材链接（选填）">
-            <Input placeholder="图片/视频外链 URL" />
+          <Form.Item label="素材文件（选填）" extra="支持图片 / 短视频（≤100MB），直接上传；也可用下方外链">
+            <Upload
+              customRequest={customUpload}
+              accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime"
+              maxCount={1}
+              showUploadList={false}
+            >
+              <Button icon={<UploadOutlined />} loading={uploading} block>
+                {mediaFile ? `已上传：${mediaFile.name}` : '点击选择图片 / 视频上传'}
+              </Button>
+            </Upload>
+          </Form.Item>
+          <Form.Item name="media_url" label="外链 URL（选填，上传后自动填入）">
+            <Input placeholder="https://... 外部图片 / 视频地址" />
           </Form.Item>
           <Button type="primary" htmlType="submit" icon={<SendOutlined />} loading={submitting} block>
             提交投稿（后台审核后展示）
@@ -98,6 +132,13 @@ function SubmitTab() {
                   <Paragraph style={{ margin: '8px 0 0', color: '#555' }} ellipsis={{ rows: 3 }}>
                     {s.content}
                   </Paragraph>
+                  {s.media_url && (
+                    s.type === '短视频' ? (
+                      <video src={s.media_url} controls preload="metadata" style={{ width: '100%', maxHeight: 260, borderRadius: 8, marginTop: 8, background: '#000' }} />
+                    ) : (
+                      <img src={s.media_url} alt="投稿素材" loading="lazy" style={{ width: '100%', maxHeight: 300, objectFit: 'cover', borderRadius: 8, marginTop: 8 }} />
+                    )
+                  )}
                   <div style={{ color: '#aaa', fontSize: 12, marginTop: 6 }}>{s.created_at}</div>
                 </div>
               ))}

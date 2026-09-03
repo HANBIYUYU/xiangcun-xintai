@@ -163,7 +163,7 @@ export const newsAPI = {
   remove: (id: number | string) => api.delete(`/news/${id}`),
 }
 
-// ============ 上传（R2 开通前为 stub） ============
+// ============ 上传（R2，2026-08 已开通；投稿素材/文件） ============
 export const uploadAPI = {
   upload: (file: File) => {
     const form = new FormData()

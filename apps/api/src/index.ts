@@ -20,7 +20,7 @@ import faqRoutes from './routes/faq'
 import aiChatRoutes from './routes/ai-chat'
 import newsRoutes from './routes/news'
 import statsRoutes from './routes/stats'
-import uploadRoutes from './routes/upload'
+import uploadRoutes, { fileRoutes } from './routes/upload'
 
 const app = new Hono<{ Bindings: Env }>()
 
@@ -59,6 +59,7 @@ app.route('/api/ai-chat', aiChatRoutes)
 app.route('/api/news', newsRoutes)
 app.route('/api/stats', statsRoutes)
 app.route('/api/upload', uploadRoutes)
+app.route('/api/files', fileRoutes)
 
 app.onError((err, c) => {
   console.error(err)
