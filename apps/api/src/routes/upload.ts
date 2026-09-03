@@ -51,10 +51,14 @@ export default upload
 /** 文件读取路由：挂载于 /api/files */
 export const fileRoutes = new Hono<{ Bindings: Env }>()
 
-// 桶内对象清单（团队；素材迁移核查用，需登录后调用）
+// 桶内对象清单（团队；图床界面用；过滤目录标记，避免误删整个文件夹）
 fileRoutes.get('/list', authMiddleware, requireRole('team'), async (c) => {
   const listed = await c.env.BUCKET.list({ limit: 1000 })
-  return c.json({ objects: listed.objects.map((o) => ({ key: o.key, size: o.size })) })
+  return c.json({
+    objects: listed.objects
+      .filter((o) => !o.key.endsWith('/'))
+      .map((o) => ({ key: o.key, size: o.size })),
+  })
 })
 
 /** 官方素材目录白名单（团队上传专用，禁止写 uploads/ 与任意路径） */
@@ -108,7 +112,8 @@ fileRoutes.get('*', async (c) => {
 // DELETE /api/files?key=dir/xxx.jpg — 删除素材（团队；图床界面用）
 fileRoutes.delete('/', authMiddleware, requireRole('team'), async (c) => {
   const key = String(c.req.query('key') || '').trim()
-  if (!key || key.includes('..')) return c.json({ error: '参数错误' }, 400)
+  // 安全：拒绝空 key、路径穿越、目录标记（xxx/）——目录只能在控制台整删，防止误删整个文件夹
+  if (!key || key.includes('..') || key.endsWith('/')) return c.json({ error: '参数错误' }, 400)
   try {
     await c.env.BUCKET.delete(key)
     return c.json({ success: true, key })
