@@ -95,9 +95,10 @@ P1 已通过种子脚本（`apps/api/seeds/seed.sql`）写入两个管理账号�
 
 ## 素材方案现状
 
-- **官方素材（图片 / GeoJSON 地图 / OBJ 3D / 短音频）**：打包进 Pages 静态目录 `apps/web/public/assets/`，随部署上线（Pages 限制：单文件 ≤25 MiB、Free 计划 ≤20,000 文件）。
+- **官方素材（✅ 2026-09 全量迁 R2）**：统一存 R2 桶 `xiangcun-xintai-assets`，目录：`hero/` 首页滑窗 ｜ `xitai_photos/` 戏台实拍 + 缩略图 ｜ `maps/` 专题图 ｜ `trend_cover/` 资讯封面（待素材）｜ `videos/` 演出视频（待素材）｜ `placeholder_img/` 品牌占位图（无真实素材的内容统一引用）；通过 `/api/files/...` 同域直链（长缓存）。**仅 logo 与 geojson 数据文件保留本地打包**（`apps/web/public/assets/`）。
+- **视频（方案变更）**：原「长视频放 B 站裸 iframe」**弃用**——演出视频统一放 R2 `videos/` 目录、`<video>` 直链播放；素材提供后接入（待办）。
 - **图片加速（✅ 已上线）**：`_headers` 强缓存（图片/JS/CSS 一年 immutable、HTML no-cache）；42 张戏台图压缩 234MB → 13MB（1600px q80）+ 600px 缩略图（44KB）；档案馆卡片/地图弹窗/台小湘用缩略图 + 懒加载；原图备份于 `原图备份_stage-images/`（gitignore）。
-- **视频**：长视频放 B 站，页面用官方 **裸 iframe**（`player.bilibili.com/player.html?bvid=...`）嵌入；后续可选 Cloudflare Stream 私有视频（无跳转、不公开，需外币卡）。
+- **视频**：长视频统一放 R2 `videos/` 目录，`<video src="/api/files/videos/xxx.mp4">` 直链播放（不再用 B 站）；素材提供后接入。
 - **R2 存储（✅ 2026-08 开通落地）**：桶 `xiangcun-xintai-assets`；`/api/upload`（multipart，图片/短视频 ≤100MB，类型白名单）+ `/api/files/*` 直链读取（长缓存）；**乡村共创投稿已开通图片/视频直接上传**（外链 URL 仍可用）。R2 同时兜底未来超 25MiB 大文件与后台运行期素材上传。
 - **AI 台小湘**：左下角悬浮气泡助手（树状对话：湘昆/研学/档案馆/展厅/商城 5 主题分支 → 叶子追问 + 跳转入口按钮；日常闲聊：问候/天气/当前时间；气泡悬停变色、点击淡出后展开聊天窗）；问答库共 60 条（介绍语编号 0 置顶），后台「问答库」可统一管理；管理后台不显示。
 - 本地开发请勿提交 `.dev.vars` 与 `wrangler.toml.local`（已在 `.gitignore` 中排除）；生产 `JWT_SECRET` 请通过 Cloudflare secrets 覆盖。

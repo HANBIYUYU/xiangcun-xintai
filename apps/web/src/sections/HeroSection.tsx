@@ -20,11 +20,11 @@ import { statsAPI } from '../api';
  * 未放图时回退到暗色渐变面板
  */
 const slides = [
-  { key: 'slide-1', bg: '/assets/hero/hero-1.jpg' },
-  { key: 'slide-2', bg: '/assets/hero/hero-2.jpg' },
-  { key: 'slide-3', bg: '/assets/hero/hero-3.jpg' },
-  { key: 'slide-4', bg: '/assets/hero/hero-4.jpg' },
-  { key: 'slide-5', bg: '/assets/hero/hero-5.jpg' },
+  { key: 'slide-1', bg: '/api/files/hero/hero-1.jpg' },
+  { key: 'slide-2', bg: '/api/files/hero/hero-2.jpg' },
+  { key: 'slide-3', bg: '/api/files/hero/hero-3.jpg' },
+  { key: 'slide-4', bg: '/api/files/hero/hero-4.jpg' },
+  { key: 'slide-5', bg: '/api/files/hero/hero-5.jpg' },
 ];
 
 const entrances = [

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { CloseOutlined, SendOutlined, RobotOutlined } from '@ant-design/icons'
 import { aiChatAPI } from '../api'
+import { thumbUrl } from '../utils/image'
 
 /** 消息类型：AI 回复可附带戏台卡片 / 快捷操作 / 推荐追问 */
 interface ChatMsg {
@@ -356,7 +357,7 @@ export default function AIAssistant() {
                       boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
                     }}>
                     {c.image ? (
-                      <div style={{ height: 90, background: `url(${c.image.replace('/stage-images/', '/stage-images/thumb-')}) center/cover no-repeat` }} />
+                      <div style={{ height: 90, background: `url(${thumbUrl(c.image)}) center/cover no-repeat` }} />
                     ) : (
                       <div style={{ height: 40, background: 'linear-gradient(135deg,#A3232B,#C0392B)' }} />
                     )}

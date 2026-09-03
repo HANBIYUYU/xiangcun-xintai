@@ -164,7 +164,7 @@ export default function MapPage() {
     const imageName = safeText(props.图片, '')
 
     const imageUrl = imageName
-      ? `/assets/map/stage-images/thumb-${encodeURIComponent(
+      ? `/api/files/xitai_photos/thumb-${encodeURIComponent(
           imageName
         )}`
       : ''

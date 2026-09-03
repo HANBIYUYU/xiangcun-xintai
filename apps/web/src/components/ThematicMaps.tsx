@@ -14,7 +14,7 @@ const thematicMaps: ThematicMapItem[] = [
     description:
       '展示桂阳县古戏台在不同乡镇中的空间分布特征，直观反映古戏台资源的地域差异与集中区域。',
     image:
-      '/assets/map/thematic/01_古戏台乡镇分布图.png',
+      '/api/files/maps/01_古戏台乡镇分布图.png',
   },
   {
     id: 2,
@@ -22,7 +22,7 @@ const thematicMaps: ThematicMapItem[] = [
     description:
       '依据古戏台建筑时代进行分类展示，呈现不同历史时期古戏台遗存的空间分布及历史延续特征。',
     image:
-      '/assets/map/thematic/02_古戏台年代分布图.png',
+      '/api/files/maps/02_古戏台年代分布图.png',
   },
   {
     id: 3,
@@ -30,7 +30,7 @@ const thematicMaps: ThematicMapItem[] = [
     description:
       '按照国家级、省级、市级、县级及暂无文保等级进行分类，呈现古戏台文化遗产保护层级的空间格局。',
     image:
-      '/assets/map/thematic/03_古戏台文保等级分布图.png',
+      '/api/files/maps/03_古戏台文保等级分布图.png',
   },
   {
     id: 4,
@@ -38,7 +38,7 @@ const thematicMaps: ThematicMapItem[] = [
     description:
       '基于空间分析识别古戏台资源的集聚区域与相对稀疏区域，展示古戏台空间分布的集聚特征。',
     image:
-      '/assets/map/thematic/04_古戏台空间集聚分析图.png',
+      '/api/files/maps/04_古戏台空间集聚分析图.png',
   },
   {
     id: 5,
@@ -46,7 +46,7 @@ const thematicMaps: ThematicMapItem[] = [
     description:
       '结合实地调查记录展示古戏台保存状况，为保护、修缮与活化利用提供空间参考。',
     image:
-      '/assets/map/thematic/05_古戏台保存状态专题图.png',
+      '/api/files/maps/05_古戏台保存状态专题图.png',
   },
   {
     id: 6,
@@ -54,7 +54,7 @@ const thematicMaps: ThematicMapItem[] = [
     description:
       '综合古戏台资源价值、空间位置与文旅条件构建研学推荐线路，为传统文化体验与乡村文旅开发提供参考。',
     image:
-      '/assets/map/thematic/06_古戏台研学文旅推荐线路图.png',
+      '/api/files/maps/06_古戏台研学文旅推荐线路图.png',
   },
 ]
 

@@ -52,6 +52,8 @@
 - [ ] 演示账号 `xiangcun2026` 改密
 - [x] R2 存储开通 → `/api/upload` 落地（桶 `xiangcun-xintai-assets`，图片/短视频 ≤100MB，类型白名单；`/api/files/*` 直链长缓存）
 - [x] 乡村共创平台，开通图片视频上传功能（投稿表单直接上传 R2，外链仍可用；已通过列表展示图片/视频）
+- [x] **素材全量迁 R2**（2026-09）：hero/xitai_photos/maps/placeholder_img 已上传并按目录归位（96 个文件）；DB 封面与代码引用全部改 `/api/files/...` 直链；无真实素材的封面统一指向品牌占位图；仅 logo/geojson 留本地；团队官方上传接口 `POST /api/files/upload`
+- [ ] `trend_cover/`（资讯封面）、`videos/`（演出视频 mp4）素材待提供后接入（首页动态/红色戏曲目前用占位图）
 
 ## D. 其余（增强项，按需排期）
 
