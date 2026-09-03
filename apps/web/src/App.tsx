@@ -19,6 +19,7 @@ import {
   ActivitiesAdminConfig, ProductsAdminConfig, FaqAdminConfig, FilmsAdminConfig, NewsAdminConfig,
 } from './pages/Admin/Resources'
 import { SubmissionsAdmin, SuggestionsAdmin, QuizAdmin, BookingsAdmin, OrdersAdmin } from './pages/Admin/SpecialPages'
+import { MediaLibraryPage } from './pages/Admin/MediaLibrary'
 
 // 三维展厅懒加载（three.js 体积较大，独立分包）；promise 可复用，供页面切换遮罩等待 chunk 就绪
 let hall3dPromise: Promise<typeof import('./pages/Hall3D')> | null = null
@@ -101,6 +102,7 @@ function App() {
           <Route path="products" element={<AdminCrudPage config={ProductsAdminConfig} />} />
           <Route path="orders" element={<OrdersAdmin />} />
           <Route path="faq" element={<AdminCrudPage config={FaqAdminConfig} />} />
+          <Route path="media" element={<MediaLibraryPage />} />
         </Route>
 
         {/* 未匹配路由回首页 */}

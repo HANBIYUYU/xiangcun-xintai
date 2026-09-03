@@ -104,3 +104,16 @@ fileRoutes.get('*', async (c) => {
   headers.set('cache-control', 'public, max-age=31536000, immutable')
   return new Response(obj.body, { headers })
 })
+
+// DELETE /api/files?key=dir/xxx.jpg — 删除素材（团队；图床界面用）
+fileRoutes.delete('/', authMiddleware, requireRole('team'), async (c) => {
+  const key = String(c.req.query('key') || '').trim()
+  if (!key || key.includes('..')) return c.json({ error: '参数错误' }, 400)
+  try {
+    await c.env.BUCKET.delete(key)
+    return c.json({ success: true, key })
+  } catch (err) {
+    console.error('delete failed', err)
+    return c.json({ error: '删除失败' }, 500)
+  }
+})

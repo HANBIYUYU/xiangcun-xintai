@@ -1,15 +1,18 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  Table, Button, Modal, Form, Input, InputNumber, Select, Switch, Space, Popconfirm, message, Tag, Spin,
+  Table, Button, Modal, Form, Input, InputNumber, Select, Switch, Space, Popconfirm, message, Spin, Tag,
 } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined } from '@ant-design/icons';
+import {
+  PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined, SearchOutlined, PictureOutlined,
+} from '@ant-design/icons';
+import { MediaPickerModal } from './MediaLibrary';
 
 const { TextArea } = Input;
 
 export interface CrudField {
   name: string;
   label: string;
-  type?: 'text' | 'textarea' | 'number' | 'select' | 'switch';
+  type?: 'text' | 'textarea' | 'number' | 'select' | 'switch' | 'media';
   options?: { value: string | number; label: string }[];
   required?: boolean;
   span?: 1 | 2; // 布局占位
@@ -34,13 +37,72 @@ export interface CrudConfig {
   rowColor?: (row: any) => string;
 }
 
-/** 通用管理端 CRUD 页（P11）：表格 + 新增/编辑弹窗 + 删除确认 */
+/** 数字/日期列自动排序，枚举列自动筛选（值种类少时） */
+const SORTABLE = new Set(['id', 'created_at', 'updated_at', 'date', 'start_time', 'price', 'stock', 'sort_order']);
+
+function useSmartColumns(config: CrudConfig, rows: any[]) {
+  return useMemo(() => {
+    const counts: Record<string, Set<string>> = {};
+    rows.forEach((r) => {
+      config.columns.forEach((c) => {
+        const v = r[c.dataIndex];
+        if (v == null || ['string', 'number'].indexOf(typeof v) < 0) return;
+        (counts[c.dataIndex] ??= new Set()).add(String(v));
+      });
+    });
+    return config.columns.map((c: any) => {
+      const col: any = { ...c };
+      if (!col.title) return col;
+      if (SORTABLE.has(c.dataIndex)) {
+        col.sorter = (a: any, b: any) => (a[c.dataIndex] ?? '') > (b[c.dataIndex] ?? '') ? 1 : -1;
+      }
+      const values = counts[c.dataIndex];
+      if (values && values.size > 1 && values.size <= 12 && c.render === undefined) {
+        col.filters = [...values].sort().map((v) => ({ text: v, value: v }));
+        col.onFilter = (v: any, r: any) => String(r[c.dataIndex]) === String(v);
+      }
+      if (c.ellipsis === undefined && !c.width) col.ellipsis = true;
+      return col;
+    });
+  }, [config, rows]);
+}
+
+/** 素材字段：输入框 + 「素材库」按钮（从图床选择，不必手填 URL） */
+function MediaInput({ value, onChange }: { value?: string; onChange?: (v: string) => void }) {
+  const [pick, setPick] = useState(false);
+  return (
+    <>
+      <Space.Compact style={{ width: '100%' }}>
+        <Input value={value || ''} onChange={(e) => onChange?.(e.target.value)} placeholder="/api/files/... 或外链 URL（可留空）" />
+        <Button icon={<PictureOutlined />} onClick={() => setPick(true)}>素材库</Button>
+      </Space.Compact>
+      {value ? (
+        <div style={{ marginTop: 6 }}>
+          <img
+            src={value}
+            alt="封面预览"
+            style={{ maxWidth: '100%', maxHeight: 120, borderRadius: 8, border: '1px solid #f0f0f0' }}
+            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+          />
+        </div>
+      ) : null}
+      <MediaPickerModal
+        open={pick}
+        onCancel={() => setPick(false)}
+        onSelect={(url) => { onChange?.(url); setPick(false); }}
+      />
+    </>
+  );
+}
+
+/** 通用管理端 CRUD 页：搜索 + 列筛选/排序 + 新增/编辑（素材字段走图床选择） */
 export default function AdminCrudPage({ config }: { config: CrudConfig }) {
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
   const [saving, setSaving] = useState(false);
+  const [kw, setKw] = useState('');
   const [form] = Form.useForm();
 
   const load = useCallback(() => {
@@ -53,11 +115,9 @@ export default function AdminCrudPage({ config }: { config: CrudConfig }) {
 
   useEffect(() => { load(); }, [load]);
 
-  // 轻量「实时同步」：窗口重新聚焦（切回本页面/其他标签页改完回来）时自动刷新列表
+  // 切回页面自动刷新（轻量实时同步）
   useEffect(() => {
-    const onFocus = () => {
-      if (document.visibilityState === 'visible') load();
-    };
+    const onFocus = () => { if (document.visibilityState === 'visible') load(); };
     window.addEventListener('focus', onFocus);
     document.addEventListener('visibilitychange', onFocus);
     return () => {
@@ -65,6 +125,14 @@ export default function AdminCrudPage({ config }: { config: CrudConfig }) {
       document.removeEventListener('visibilitychange', onFocus);
     };
   }, [load]);
+
+  const filtered = useMemo(() => {
+    if (!kw.trim()) return rows;
+    const q = kw.trim().toLowerCase();
+    return rows.filter((r) => JSON.stringify(Object.values(r)).toLowerCase().includes(q));
+  }, [rows, kw]);
+
+  const smartColumns = useSmartColumns(config, rows);
 
   const openCreate = () => {
     setEditing(null);
@@ -114,9 +182,10 @@ export default function AdminCrudPage({ config }: { config: CrudConfig }) {
   const actionColumn = {
     title: '操作',
     key: '_actions',
-    width: 140,
+    width: 150,
+    fixed: 'right' as const,
     render: (_: any, row: any) => (
-      <Space>
+      <Space size={4}>
         {config.api.update && (
           <Button size="small" icon={<EditOutlined />} onClick={() => openEdit(row)}>编辑</Button>
         )}
@@ -131,9 +200,17 @@ export default function AdminCrudPage({ config }: { config: CrudConfig }) {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <h2 style={{ margin: 0 }}>{config.title}</h2>
-        <Space>
+      <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, alignItems: 'center', marginBottom: 16 }}>
+        <h2 style={{ margin: 0, fontSize: 20 }}>{config.title}</h2>
+        <Space wrap>
+          <Input
+            allowClear
+            prefix={<SearchOutlined style={{ color: '#bbb' }} />}
+            placeholder="搜索关键词…"
+            value={kw}
+            onChange={(e) => setKw(e.target.value)}
+            style={{ width: 220 }}
+          />
           <Button icon={<ReloadOutlined />} onClick={load}>刷新</Button>
           {config.api.create && (
             <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>新增</Button>
@@ -144,11 +221,11 @@ export default function AdminCrudPage({ config }: { config: CrudConfig }) {
       <Spin spinning={loading}>
         <Table
           rowKey={config.rowKey}
-          columns={[...config.columns, actionColumn]}
-          dataSource={rows}
-          pagination={{ pageSize: 18, showSizeChanger: false }}
-          scroll={{ x: 'max-content', y: 'max(280px, calc(100vh - 240px))' }}
-          size="small"
+          columns={[...smartColumns, actionColumn]}
+          dataSource={filtered}
+          pagination={{ pageSize: 18, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
+          scroll={{ y: 'max(300px, calc(100vh - 330px))' }}
+          size="middle"
           rowClassName={(row) => (config.rowColor ? config.rowColor(row) : '')}
         />
       </Spin>
@@ -159,7 +236,7 @@ export default function AdminCrudPage({ config }: { config: CrudConfig }) {
         onCancel={() => setOpen(false)}
         onOk={onSave}
         confirmLoading={saving}
-        width={640}
+        width={760}
         destroyOnClose
       >
         <Form form={form} layout="vertical">
@@ -170,6 +247,7 @@ export default function AdminCrudPage({ config }: { config: CrudConfig }) {
               label={f.label}
               rules={f.required ? [{ required: true, message: `请填写${f.label}` }] : undefined}
               style={f.span === 1 ? { display: 'inline-block', width: '48%', marginRight: '2%' } : undefined}
+              extra={f.type === 'media' ? '点击「素材库」从 R2 图床选择图片/视频' : undefined}
             >
               {f.type === 'textarea' ? (
                 <TextArea rows={3} />
@@ -179,6 +257,8 @@ export default function AdminCrudPage({ config }: { config: CrudConfig }) {
                 <Select options={f.options} />
               ) : f.type === 'switch' ? (
                 <Switch checkedChildren="是" unCheckedChildren="否" />
+              ) : f.type === 'media' ? (
+                <MediaInput />
               ) : (
                 <Input />
               )}

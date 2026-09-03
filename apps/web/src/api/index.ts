@@ -171,3 +171,16 @@ export const uploadAPI = {
     return api.post('/upload', form, { headers: { 'Content-Type': 'multipart/form-data' } })
   },
 }
+
+// ============ 素材库（R2 官方目录，团队后台图床） ============
+export const mediaAPI = {
+  list: () => api.get('/files/list'),
+  uploadOfficial: (file: File, dir: string, name?: string) => {
+    const form = new FormData()
+    form.append('file', file)
+    form.append('dir', dir)
+    form.append('name', name || file.name)
+    return api.post('/files/upload', form, { headers: { 'Content-Type': 'multipart/form-data' } })
+  },
+  remove: (key: string) => api.delete('/files', { params: { key } }),
+}

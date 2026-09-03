@@ -50,8 +50,8 @@ export function SubmissionsAdmin() {
       <Spin spinning={loading}>
         <Table
           rowKey="id"
-          size="small"
-          scroll={{ x: 'max-content', y: 'max(280px, calc(100vh - 240px))' }}
+          size="middle"
+          scroll={{ y: 'max(300px, calc(100vh - 320px))' }}
           dataSource={rows}
           pagination={{ pageSize: 10 }}
           columns={[
@@ -132,8 +132,8 @@ export function SuggestionsAdmin() {
       <Spin spinning={loading}>
         <Table
           rowKey="id"
-          size="small"
-          scroll={{ x: 'max-content', y: 'max(280px, calc(100vh - 240px))' }}
+          size="middle"
+          scroll={{ y: 'max(300px, calc(100vh - 320px))' }}
           dataSource={rows}
           pagination={{ pageSize: 10 }}
           columns={[
@@ -147,7 +147,7 @@ export function SuggestionsAdmin() {
               title: '处理', width: 160,
               render: (_: any, row: any) => (
                 <Select
-                  size="small"
+                  size="middle"
                   style={{ width: 130 }}
                   value={row.status}
                   onChange={(v) => updateStatus(row.id, v)}
@@ -215,8 +215,8 @@ export function QuizAdmin() {
       <Spin spinning={loading}>
         <Table
           rowKey="id"
-          size="small"
-          scroll={{ x: 'max-content', y: 'max(280px, calc(100vh - 240px))' }}
+          size="middle"
+          scroll={{ y: 'max(300px, calc(100vh - 320px))' }}
           dataSource={rows}
           pagination={{ pageSize: 10 }}
           columns={[
@@ -297,8 +297,8 @@ export function BookingsAdmin() {
       <Spin spinning={loading}>
         <Table
           rowKey="id"
-          size="small"
-          scroll={{ x: 'max-content', y: 'max(280px, calc(100vh - 240px))' }}
+          size="middle"
+          scroll={{ y: 'max(300px, calc(100vh - 320px))' }}
           dataSource={rows}
           pagination={{ pageSize: 10 }}
           columns={[
@@ -315,7 +315,7 @@ export function BookingsAdmin() {
               title: '处理', width: 150,
               render: (_: any, row: any) => (
                 <Select
-                  size="small"
+                  size="middle"
                   style={{ width: 130 }}
                   value={row.status}
                   onChange={(v) => updateStatus(row.id, v)}
@@ -379,8 +379,8 @@ export function OrdersAdmin() {
       <Spin spinning={loading}>
         <Table
           rowKey="id"
-          size="small"
-          scroll={{ x: 'max-content', y: 'max(280px, calc(100vh - 240px))' }}
+          size="middle"
+          scroll={{ y: 'max(300px, calc(100vh - 320px))' }}
           dataSource={rows}
           pagination={{ pageSize: 10 }}
           columns={[
