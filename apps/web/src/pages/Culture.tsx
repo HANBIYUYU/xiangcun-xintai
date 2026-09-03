@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Tabs, Card, Tag, Modal, Spin, Empty, message } from 'antd';
-import { PlayCircleOutlined, CalendarOutlined, EnvironmentOutlined } from '@ant-design/icons';
+import { Tabs, Card, Tag, Modal, Spin, Empty, message, Button } from 'antd';
+import { PlayCircleOutlined, CalendarOutlined, EnvironmentOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import PageLayout from '../components/PageLayout';
 import { redPlaysAPI, articlesAPI, activitiesAPI } from '../api';
 
@@ -10,6 +10,21 @@ const TYPE_COLOR: Record<string, string> = {
 const STATUS_COLOR: Record<string, string> = {
   报名中: 'green', 已结束: 'default', 已取消: 'red',
 };
+
+/** 把正文里的 http(s) 链接渲染成可点击超链接 */
+function linkify(text?: string) {
+  if (!text) return null;
+  const parts = String(text).split(/(https?:\/\/[^\s\u4e00-\u9fa5，。；、（）】》"'）]+)/g);
+  return parts.map((p, i) =>
+    /^https?:\/\//.test(p) ? (
+      <a key={i} href={p} target="_blank" rel="noopener noreferrer" style={{ color: '#A3232B', wordBreak: 'break-all' }}>
+        {p}
+      </a>
+    ) : (
+      <span key={i}>{p}</span>
+    )
+  );
+}
 
 /** 红色湘昆文化馆（P7）：红色戏曲 / 互动阅读 / 活动预告 */
 export default function CulturePage() {
@@ -170,7 +185,27 @@ export default function CulturePage() {
         destroyOnClose
       >
         <Tag>{reading?.source || '湘村新台'}</Tag>
-        <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.9, marginTop: 12 }}>{reading?.content || '（正文待补录）'}</p>
+        <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.9, marginTop: 12 }}>{linkify(reading?.content) || '（正文待补录）'}</p>
+        {reading?.source_url ? (
+          <div
+            style={{
+              marginTop: 18, paddingTop: 14, borderTop: '1px solid #f0f0f0',
+              display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
+            }}
+          >
+            <Button
+              type="primary"
+              ghost
+              href={reading.source_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              icon={<ArrowRightOutlined />}
+            >
+              阅读原文 ↗
+            </Button>
+            <span style={{ color: '#aaa', fontSize: 12, wordBreak: 'break-all' }}>{reading.source_url}</span>
+          </div>
+        ) : null}
       </Modal>
     </PageLayout>
   );

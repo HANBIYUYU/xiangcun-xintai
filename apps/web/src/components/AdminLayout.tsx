@@ -5,40 +5,58 @@ import { authAPI } from '../api'
 
 const { Sider, Content } = Layout
 
-/** 菜单按业务分组；roles 为空表示 team + admin 均可见
- * 权限：admin 仅 仪表盘/戏台档案/活动预告/订单；素材库与其余管理项归 team */
-const MENU_GROUPS: { group: string; items: { key: string; label: string; roles?: string[] }[] }[] = [
+/** 菜单按「前台页面」分组（可折叠）；roles 为空 = team + admin 均可见 */
+const PAGES: { key: string; label: string; items: { key: string; label: string; roles?: string[] }[] }[] = [
   {
-    group: '总览',
+    key: 'p-home', label: '主页',
     items: [
-      { key: '/admin/dashboard', label: '仪表盘' },
-    ],
-  },
-  {
-    group: '内容管理',
-    items: [
-      { key: '/admin/stages', label: '戏台档案' },
-      { key: '/admin/red-plays', label: '红色戏曲', roles: ['team'] },
-      { key: '/admin/articles', label: '互动阅读', roles: ['team'] },
       { key: '/admin/films', label: '首页影像', roles: ['team'] },
       { key: '/admin/news', label: '首页动态', roles: ['team'] },
-      { key: '/admin/activities', label: '活动预告' },
-      { key: '/admin/faq', label: '问答库', roles: ['team'] },
     ],
   },
   {
-    group: '用户与业务',
+    key: 'p-archive', label: '档案馆',
+    items: [
+      { key: '/admin/stages', label: '戏台档案' },
+    ],
+  },
+  {
+    key: 'p-culture', label: '文化馆',
+    items: [
+      { key: '/admin/red-plays', label: '红色戏曲', roles: ['team'] },
+      { key: '/admin/articles', label: '互动阅读', roles: ['team'] },
+      { key: '/admin/activities', label: '活动预告' },
+    ],
+  },
+  {
+    key: 'p-community', label: '共创',
     items: [
       { key: '/admin/submissions', label: '投稿审核', roles: ['team'] },
       { key: '/admin/suggestions', label: '建言归档', roles: ['team'] },
       { key: '/admin/quiz', label: '题库', roles: ['team'] },
+    ],
+  },
+  {
+    key: 'p-study', label: '研学',
+    items: [
       { key: '/admin/bookings', label: '研学预约', roles: ['team'] },
+    ],
+  },
+  {
+    key: 'p-mall', label: '商城',
+    items: [
       { key: '/admin/products', label: '商品', roles: ['team'] },
       { key: '/admin/orders', label: '订单' },
     ],
   },
   {
-    group: '素材',
+    key: 'p-ai', label: 'AI 助手',
+    items: [
+      { key: '/admin/faq', label: '问答库', roles: ['team'] },
+    ],
+  },
+  {
+    key: 'p-media', label: '素材',
     items: [
       { key: '/admin/media', label: '素材库（图床）', roles: ['team'] },
     ],
@@ -48,6 +66,25 @@ const MENU_GROUPS: { group: string; items: { key: string; label: string; roles?:
 const ROLE_LABEL: Record<string, string> = {
   team: '项目团队',
   admin: '政企文旅管理员',
+}
+
+/** 每页单条功能时折叠成一层，减少嵌套；多条的用可折叠分组 */
+function buildMenuItems(user: { role: string } | null) {
+  const visible = (roles?: string[]) => !roles || (user && roles.includes(user.role))
+  const items: any[] = [{ key: '/admin/dashboard', label: <Link to="/admin/dashboard">仪表盘</Link> }]
+  const openKeys: string[] = []
+  for (const page of PAGES) {
+    const children = page.items.filter((m) => visible(m.roles))
+    if (children.length === 0) continue
+    const links = children.map((m) => ({ key: m.key, label: <Link to={m.key}>{m.label}</Link> }))
+    if (children.length === 1) {
+      items.push(links[0])
+    } else {
+      items.push({ key: page.key, label: page.label, children: links })
+      openKeys.push(page.key)
+    }
+  }
+  return { items, openKeys }
 }
 
 export default function AdminLayout() {
@@ -70,13 +107,7 @@ export default function AdminLayout() {
     navigate('/admin/login')
   }
 
-  const menuItems = MENU_GROUPS.map((g) => ({
-    type: 'group' as const,
-    label: g.group,
-    children: g.items
-      .filter((m) => !m.roles || (user && m.roles.includes(user.role)))
-      .map((m) => ({ key: m.key, label: <Link to={m.key}>{m.label}</Link> })),
-  })).filter((g) => g.children.length > 0)
+  const menu = buildMenuItems(user)
 
   if (location.pathname === '/admin/login') {
     return <Outlet />
@@ -84,7 +115,7 @@ export default function AdminLayout() {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider theme="light" width={224} style={{ borderRight: '1px solid #f0f0f0' }}>
+      <Sider theme="light" width={232} style={{ borderRight: '1px solid #f0f0f0' }}>
         <div style={{ padding: '16px', borderBottom: '1px solid #f0f0f0' }}>
           <h3 style={{ margin: 0 }}>湘村新台 · 管理后台</h3>
           {user && (
@@ -93,12 +124,14 @@ export default function AdminLayout() {
             </p>
           )}
         </div>
-        <div style={{ maxHeight: 'calc(100vh - 170px)', overflowY: 'auto' }}>
+        {/* 菜单区固定高度 + 内置滚动，不影响外层 */}
+        <div style={{ height: 'calc(100vh - 196px)', overflowY: 'auto' }}>
           <Menu
             mode="inline"
             style={{ borderInlineEnd: 'none', fontSize: 14 }}
             selectedKeys={[location.pathname]}
-            items={menuItems}
+            defaultOpenKeys={menu.openKeys}
+            items={menu.items}
           />
         </div>
         <div style={{ padding: 12, borderTop: '1px solid #f0f0f0' }}>

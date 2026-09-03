@@ -10,7 +10,7 @@ articles.get('/', async (c) => {
   const limit = Math.min(Math.max(Number(c.req.query('limit') || 20), 1), 50)
 
   const rows = await db.prepare(
-    'SELECT id, title, content, cover_url, source, sort_order, created_at FROM articles ORDER BY sort_order ASC, id DESC LIMIT ?'
+    'SELECT id, title, content, cover_url, source, source_url, sort_order, created_at FROM articles ORDER BY sort_order ASC, id DESC LIMIT ?'
   ).bind(limit).all()
 
   return c.json({ list: rows.results, total: rows.results.length })
@@ -23,8 +23,8 @@ articles.post('/', authMiddleware, requireRole('team'), async (c) => {
   if (!title) return c.json({ error: '标题不能为空' }, 400)
 
   const r = await c.env.DB.prepare(
-    'INSERT INTO articles (title, content, cover_url, source, sort_order) VALUES (?, ?, ?, ?, ?)'
-  ).bind(title, String(b?.content ?? ''), String(b?.cover_url ?? ''), String(b?.source ?? ''), Number(b?.sort_order || 0)).run()
+    'INSERT INTO articles (title, content, cover_url, source, source_url, sort_order) VALUES (?, ?, ?, ?, ?, ?)'
+  ).bind(title, String(b?.content ?? ''), String(b?.cover_url ?? ''), String(b?.source ?? ''), String(b?.source_url ?? ''), Number(b?.sort_order || 0)).run()
   return c.json({ success: true, id: r.meta.last_row_id }, 201)
 })
 
@@ -36,8 +36,8 @@ articles.put('/:id', authMiddleware, requireRole('team'), async (c) => {
   if (!title) return c.json({ error: '标题不能为空' }, 400)
 
   const r = await c.env.DB.prepare(
-    'UPDATE articles SET title = ?, content = ?, cover_url = ?, source = ?, sort_order = ? WHERE id = ?'
-  ).bind(title, String(b?.content ?? ''), String(b?.cover_url ?? ''), String(b?.source ?? ''), Number(b?.sort_order || 0), id).run()
+    'UPDATE articles SET title = ?, content = ?, cover_url = ?, source = ?, source_url = ?, sort_order = ? WHERE id = ?'
+  ).bind(title, String(b?.content ?? ''), String(b?.cover_url ?? ''), String(b?.source ?? ''), String(b?.source_url ?? ''), Number(b?.sort_order || 0), id).run()
   if (r.meta.changes === 0) return c.json({ error: '内容不存在' }, 404)
   return c.json({ success: true, id })
 })

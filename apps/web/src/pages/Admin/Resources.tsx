@@ -109,10 +109,11 @@ export const ArticlesAdminConfig: CrudConfig = {
   ],
   fields: [
     { name: 'title', label: '标题', required: true },
-    { name: 'source', label: '来源（如公众号）', span: 1 },
+    { name: 'source', label: '来源（如公众号/媒体名）', span: 1 },
     { name: 'sort_order', label: '排序', type: 'number', span: 1 },
     { name: 'cover_url', label: '封面图', ...coverField },
-    { name: 'content', label: '正文内容', type: 'textarea' },
+    { name: 'source_url', label: '原文链接 URL（阅读页可跳转）', span: 2 },
+    { name: 'content', label: '正文内容（含网址会自动变成可点击链接）', type: 'textarea' },
   ],
   defaultValues: { sort_order: 0 },
 };
