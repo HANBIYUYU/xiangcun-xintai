@@ -39,7 +39,7 @@ export default function Hall3DPage() {
       <div className="page-heading">
         <h1 className="text-h1">三维古戏台展厅</h1>
         <p className="text-body">
-          程序化三维还原桂阳古戏台形制（台基、戏台红柱、四坡屋顶与宝顶），支持 720° 自由旋转缩放。
+          真实戏台 OBJ 低模（自动适配视角），支持 720° 自由旋转缩放；当前为默认木质观感，待补 MTL 贴图后恢复真实材质。
         </p>
       </div>
 
