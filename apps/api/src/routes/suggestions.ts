@@ -89,4 +89,13 @@ suggestions.put('/:id', authMiddleware, requireRole('team', 'admin'), async (c) 
   return c.json({ success: true, id, status })
 })
 
+/** DELETE /api/suggestions/:id — 删除建言（团队/政企） */
+suggestions.delete('/:id', authMiddleware, requireRole('team', 'admin'), async (c) => {
+  const id = Number(c.req.param('id'))
+  if (!Number.isInteger(id) || id <= 0) return c.json({ error: '参数错误' }, 400)
+  const result = await c.env.DB.prepare('DELETE FROM suggestions WHERE id = ?').bind(id).run()
+  if (result.meta.changes === 0) return c.json({ error: '建言不存在' }, 404)
+  return c.json({ success: true, id })
+})
+
 export default suggestions

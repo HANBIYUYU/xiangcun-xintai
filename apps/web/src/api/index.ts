@@ -90,6 +90,7 @@ export const submissionsAPI = {
   submit: (data: unknown) => api.post('/submissions', data, { skipAuthRedirect: true }),
   list: (params?: PageParams) => api.get('/submissions', { params }),
   review: (id: number | string, data: { status: '已通过' | '已驳回' }) => api.put(`/submissions/${id}/review`, data),
+  remove: (id: number | string) => api.delete(`/submissions/${id}`),
 }
 
 // ============ 活化建言 ============
@@ -98,6 +99,7 @@ export const suggestionsAPI = {
   list: (params?: PageParams) => api.get('/suggestions', { params }),
   updateStatus: (id: number | string, data: { status: string }) => api.put(`/suggestions/${id}`, data),
   exportDoc: () => api.get('/suggestions/export', { responseType: 'blob' }),
+  remove: (id: number | string) => api.delete(`/suggestions/${id}`),
 }
 
 // ============ 答题 ============
@@ -135,6 +137,7 @@ export const ordersAPI = {
   list: (params?: PageParams) => api.get('/orders', { params }),
   verify: (id: number | string) => api.post(`/orders/${id}/verify`),
   revenue: () => api.get('/orders/revenue'),
+  remove: (id: number | string) => api.delete(`/orders/${id}`),
 }
 export const couponsAPI = {
   verify: (code: string) => api.get('/coupons/verify', { params: { code } }),

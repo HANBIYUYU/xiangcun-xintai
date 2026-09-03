@@ -66,4 +66,13 @@ submissions.put('/:id/review', authMiddleware, requireRole('team'), async (c) =>
   return c.json({ success: true, id, status })
 })
 
+/** DELETE /api/submissions/:id — 删除投稿（团队；清数据/违规处理） */
+submissions.delete('/:id', authMiddleware, requireRole('team'), async (c) => {
+  const id = Number(c.req.param('id'))
+  if (!Number.isInteger(id) || id <= 0) return c.json({ error: '参数错误' }, 400)
+  const result = await c.env.DB.prepare('DELETE FROM submissions WHERE id = ?').bind(id).run()
+  if (result.meta.changes === 0) return c.json({ error: '投稿不存在' }, 404)
+  return c.json({ success: true, id })
+})
+
 export default submissions

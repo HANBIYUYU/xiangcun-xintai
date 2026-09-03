@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   Table, Button, Modal, Form, Input, Select, Space, Popconfirm, message, Tag, Spin, Statistic, Card, Row, Col,
 } from 'antd';
-import { CheckOutlined, CloseOutlined, ExportOutlined, PlusOutlined, EyeOutlined } from '@ant-design/icons';
+import { CheckOutlined, CloseOutlined, ExportOutlined, PlusOutlined, EyeOutlined, DeleteOutlined } from '@ant-design/icons';
 import { submissionsAPI, suggestionsAPI, quizAPI, bookingsAPI, ordersAPI } from '../../api';
 
 const { TextArea } = Input;
@@ -44,6 +44,16 @@ export function SubmissionsAdmin() {
     }
   };
 
+  const onDelete = async (id: number) => {
+    try {
+      await submissionsAPI.remove(id);
+      message.success('已删除');
+      load();
+    } catch (e: any) {
+      message.error(e?.error || '删除失败');
+    }
+  };
+
   return (
     <div>
       <h2 style={{ marginBottom: 16 }}>投稿审核</h2>
@@ -55,7 +65,7 @@ export function SubmissionsAdmin() {
           dataSource={rows}
           pagination={{ pageSize: 10 }}
           columns={[
-            { title: 'ID', dataIndex: 'id', width: 60 },
+            { title: 'ID', dataIndex: 'id', width: 84 },
             { title: '作者', dataIndex: 'author_name', width: 110 },
             { title: '类型', dataIndex: 'type', width: 90, render: (v: string) => <Tag>{v}</Tag> },
             { title: '内容', dataIndex: 'content', ellipsis: true },
@@ -68,13 +78,20 @@ export function SubmissionsAdmin() {
             { title: '状态', dataIndex: 'status', width: 90, render: (v: string) => <Tag color={STATUS_MAP[v]}>{v}</Tag> },
             { title: '提交时间', dataIndex: 'created_at', width: 160 },
             {
-              title: '操作', width: 170,
-              render: (_: any, row: any) => row.status === '待审核' ? (
-                <Space>
-                  <Button size="small" type="primary" icon={<CheckOutlined />} onClick={() => review(row.id, '已通过')}>通过</Button>
-                  <Button size="small" danger icon={<CloseOutlined />} onClick={() => review(row.id, '已驳回')}>驳回</Button>
+              title: '操作', width: 230,
+              render: (_: any, row: any) => (
+                <Space size={4}>
+                  {row.status === '待审核' && (
+                    <>
+                      <Button size="small" type="primary" icon={<CheckOutlined />} onClick={() => review(row.id, '已通过')}>通过</Button>
+                      <Button size="small" danger icon={<CloseOutlined />} onClick={() => review(row.id, '已驳回')}>驳回</Button>
+                    </>
+                  )}
+                  <Popconfirm title="删除该投稿？" description="删除后不可恢复" onConfirm={() => onDelete(row.id)}>
+                    <Button size="small" danger type="text" icon={<DeleteOutlined />}>删除</Button>
+                  </Popconfirm>
                 </Space>
-              ) : <span style={{ color: '#bbb' }}>—</span>,
+              ),
             },
           ]}
         />
@@ -123,6 +140,16 @@ export function SuggestionsAdmin() {
     }
   };
 
+  const onDelete = async (id: number) => {
+    try {
+      await suggestionsAPI.remove(id);
+      message.success('已删除');
+      load();
+    } catch (e: any) {
+      message.error(e?.error || '删除失败');
+    }
+  };
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -137,22 +164,27 @@ export function SuggestionsAdmin() {
           dataSource={rows}
           pagination={{ pageSize: 10 }}
           columns={[
-            { title: 'ID', dataIndex: 'id', width: 60 },
+            { title: 'ID', dataIndex: 'id', width: 84 },
             { title: '标题', dataIndex: 'title', width: 200 },
             { title: '分类', dataIndex: 'category', width: 100, render: (v: string) => <Tag color="gold">{v}</Tag> },
             { title: '内容', dataIndex: 'content', ellipsis: true },
             { title: '状态', dataIndex: 'status', width: 90, render: (v: string) => <Tag color={STATUS_MAP[v]}>{v}</Tag> },
             { title: '时间', dataIndex: 'created_at', width: 160 },
             {
-              title: '处理', width: 160,
+              title: '处理', width: 230,
               render: (_: any, row: any) => (
-                <Select
-                  size="middle"
-                  style={{ width: 130 }}
-                  value={row.status}
-                  onChange={(v) => updateStatus(row.id, v)}
-                  options={['待处理', '已归档', '已采纳'].map((s) => ({ value: s, label: s }))}
-                />
+                <Space size={4}>
+                  <Select
+                    size="middle"
+                    style={{ width: 120 }}
+                    value={row.status}
+                    onChange={(v) => updateStatus(row.id, v)}
+                    options={['待处理', '已归档', '已采纳'].map((s) => ({ value: s, label: s }))}
+                  />
+                  <Popconfirm title="删除该建言？" description="删除后不可恢复" onConfirm={() => onDelete(row.id)}>
+                    <Button size="small" danger type="text" icon={<DeleteOutlined />}>删除</Button>
+                  </Popconfirm>
+                </Space>
               ),
             },
           ]}
@@ -220,7 +252,7 @@ export function QuizAdmin() {
           dataSource={rows}
           pagination={{ pageSize: 10 }}
           columns={[
-            { title: 'ID', dataIndex: 'id', width: 60 },
+            { title: 'ID', dataIndex: 'id', width: 84 },
             { title: '题目', dataIndex: 'question', width: 300 },
             { title: 'A', dataIndex: 'option_a', width: 140 },
             { title: 'B', dataIndex: 'option_b', width: 140 },
@@ -302,7 +334,7 @@ export function BookingsAdmin() {
           dataSource={rows}
           pagination={{ pageSize: 10 }}
           columns={[
-            { title: 'ID', dataIndex: 'id', width: 60 },
+            { title: 'ID', dataIndex: 'id', width: 84 },
             { title: '单位', dataIndex: 'org_name', width: 180 },
             { title: '套餐', dataIndex: 'plan_type', width: 110, render: (v: string) => <Tag color={v === '中小学思政' ? 'red' : 'blue'}>{v}</Tag> },
             { title: '人数', dataIndex: 'people_count', width: 70 },
@@ -362,6 +394,16 @@ export function OrdersAdmin() {
     }
   };
 
+  const onDelete = async (id: number) => {
+    try {
+      await ordersAPI.remove(id);
+      message.success('已删除');
+      load();
+    } catch (e: any) {
+      message.error(e?.error || '删除失败');
+    }
+  };
+
   return (
     <div>
       <h2 style={{ marginBottom: 16 }}>订单管理 · 营收台账</h2>
@@ -395,10 +437,17 @@ export function OrdersAdmin() {
             { title: '状态', dataIndex: 'status', width: 90, render: (v: string) => <Tag color={STATUS_MAP[v]}>{v}</Tag> },
             { title: '时间', dataIndex: 'created_at', width: 160 },
             {
-              title: '操作', width: 90,
-              render: (_: any, row: any) => row.status === '待处理' ? (
-                <Button size="small" type="primary" onClick={() => verify(row.id)}>核销</Button>
-              ) : <span style={{ color: '#bbb' }}>—</span>,
+              title: '操作', width: 170,
+              render: (_: any, row: any) => (
+                <Space size={4}>
+                  {row.status === '待处理' && (
+                    <Button size="small" type="primary" onClick={() => verify(row.id)}>核销</Button>
+                  )}
+                  <Popconfirm title="删除该订单？" description="删除后不可恢复" onConfirm={() => onDelete(row.id)}>
+                    <Button size="small" danger type="text" icon={<DeleteOutlined />}>删除</Button>
+                  </Popconfirm>
+                </Space>
+              ),
             },
           ]}
         />

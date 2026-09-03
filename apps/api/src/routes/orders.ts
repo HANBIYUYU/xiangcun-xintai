@@ -121,4 +121,13 @@ orders.post('/:id/verify', authMiddleware, requireRole('team', 'admin'), async (
   return c.json({ success: true, id, status: '已核销' })
 })
 
+/** DELETE /api/orders/:id — 删除订单（团队/政企；异常/测试订单清理） */
+orders.delete('/:id', authMiddleware, requireRole('team', 'admin'), async (c) => {
+  const id = Number(c.req.param('id'))
+  if (!Number.isInteger(id) || id <= 0) return c.json({ error: '参数错误' }, 400)
+  const result = await c.env.DB.prepare('DELETE FROM orders WHERE id = ?').bind(id).run()
+  if (result.meta.changes === 0) return c.json({ error: '订单不存在' }, 404)
+  return c.json({ success: true, id })
+})
+
 export default orders

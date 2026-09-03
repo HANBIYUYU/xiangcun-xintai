@@ -154,11 +154,12 @@ function AssetCard({ asset, onCopy, onDelete, onSelect }: {
   )
 }
 
-/** 通用素材网格（目录标记已在接口层过滤；页面自然滚动无内层滚动条） */
-function AssetGrid({ assets, kw, dir, onCopy, onDelete, onSelect }: {
+/** 通用素材网格（目录标记已在接口层过滤；区域固定高度 + 内层滚动条，不影响外层页面高度） */
+function AssetGrid({ assets, kw, dir, height, onCopy, onDelete, onSelect }: {
   assets: Asset[]
   kw: string
   dir: string
+  height?: string
   onCopy?: (k: string) => void
   onDelete?: (k: string) => void
   onSelect?: (k: string) => void
@@ -168,10 +169,12 @@ function AssetGrid({ assets, kw, dir, onCopy, onDelete, onSelect }: {
     (!kw || a.key.toLowerCase().includes(kw.toLowerCase()))
   ), [assets, kw, dir])
 
-  if (list.length === 0) return <Empty description="暂无素材，点右上角「上传素材」添加" style={{ padding: 40 }} />
+  if (list.length === 0) return <Empty description="暂无素材，点「上传素材」添加" style={{ padding: 40 }} />
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: 12 }}>
-      {list.map((a) => <AssetCard key={a.key} asset={a} onCopy={onCopy} onDelete={onDelete} onSelect={onSelect} />)}
+    <div style={{ maxHeight: height || 'calc(100vh - 340px)', overflowY: 'auto', paddingRight: 6 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: 12 }}>
+        {list.map((a) => <AssetCard key={a.key} asset={a} onCopy={onCopy} onDelete={onDelete} onSelect={onSelect} />)}
+      </div>
     </div>
   )
 }
@@ -251,7 +254,7 @@ export function MediaPickerModal({ open, onCancel, onSelect }: {
         <Button icon={<CloudUploadOutlined />} onClick={() => setUploadOpen(true)}>上传素材</Button>
       </div>
       <Spin spinning={loading}>
-        <AssetGrid assets={assets} kw={kw} dir={dir} onSelect={(k) => { onSelect(mediaUrl(k)); onCancel() }} />
+        <AssetGrid assets={assets} kw={kw} dir={dir} height="55vh" onSelect={(k) => { onSelect(mediaUrl(k)); onCancel() }} />
       </Spin>
       <UploadMediaModal open={uploadOpen} onCancel={() => setUploadOpen(false)} onDone={reload} />
     </Modal>

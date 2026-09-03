@@ -22,7 +22,7 @@ export const StagesAdminConfig: CrudConfig = {
   rowKey: 'id',
   api: stagesAPI,
   columns: [
-    { title: 'ID', dataIndex: 'id', width: 56 },
+    { title: 'ID', dataIndex: 'id', width: 84 },
     { title: '封面', dataIndex: 'cover_url', width: 72, render: coverPreview },
     { title: '名称', dataIndex: 'name' },
     { title: '乡镇', dataIndex: 'town', width: 110 },
@@ -77,7 +77,7 @@ export const RedPlaysAdminConfig: CrudConfig = {
   rowKey: 'id',
   api: redPlaysAPI,
   columns: [
-    { title: 'ID', dataIndex: 'id', width: 56 },
+    { title: 'ID', dataIndex: 'id', width: 84 },
     { title: '封面', dataIndex: 'cover_url', width: 72, render: coverPreview },
     { title: '标题', dataIndex: 'title' },
     {
@@ -102,7 +102,7 @@ export const ArticlesAdminConfig: CrudConfig = {
   rowKey: 'id',
   api: articlesAPI,
   columns: [
-    { title: 'ID', dataIndex: 'id', width: 56 },
+    { title: 'ID', dataIndex: 'id', width: 84 },
     { title: '封面', dataIndex: 'cover_url', width: 72, render: coverPreview },
     { title: '标题', dataIndex: 'title' },
     { title: '来源', dataIndex: 'source', width: 120 },
@@ -124,7 +124,7 @@ export const ActivitiesAdminConfig: CrudConfig = {
   rowKey: 'id',
   api: activitiesAPI,
   columns: [
-    { title: 'ID', dataIndex: 'id', width: 56 },
+    { title: 'ID', dataIndex: 'id', width: 84 },
     { title: '标题', dataIndex: 'title' },
     {
       title: '类型', dataIndex: 'type', width: 96,
@@ -152,7 +152,7 @@ export const ProductsAdminConfig: CrudConfig = {
   rowKey: 'id',
   api: productsAPI,
   columns: [
-    { title: 'ID', dataIndex: 'id', width: 56 },
+    { title: 'ID', dataIndex: 'id', width: 84 },
     { title: '封面', dataIndex: 'cover_url', width: 72, render: coverPreview },
     { title: '标题', dataIndex: 'title' },
     {
@@ -180,7 +180,7 @@ export const FaqAdminConfig: CrudConfig = {
   rowKey: 'id',
   api: faqAPI,
   columns: [
-    { title: 'ID', dataIndex: 'id', width: 56 },
+    { title: 'ID', dataIndex: 'id', width: 84 },
     { title: '问题', dataIndex: 'question', width: 220 },
     { title: '答案', dataIndex: 'answer', ellipsis: true },
   ],
@@ -199,7 +199,7 @@ export const FilmsAdminConfig: CrudConfig = {
   listParams: { category: '演出视频' },
   fixedValues: { category: '演出视频' },
   columns: [
-    { title: 'ID', dataIndex: 'id', width: 56 },
+    { title: 'ID', dataIndex: 'id', width: 84 },
     { title: '封面', dataIndex: 'cover_url', width: 72, render: coverPreview },
     { title: '标题', dataIndex: 'title' },
     {
@@ -222,7 +222,7 @@ export const NewsAdminConfig: CrudConfig = {
   rowKey: 'id',
   api: newsAPI,
   columns: [
-    { title: 'ID', dataIndex: 'id', width: 56 },
+    { title: 'ID', dataIndex: 'id', width: 84 },
     { title: '封面', dataIndex: 'cover_url', width: 72, render: coverPreview },
     { title: '标题', dataIndex: 'title' },
     { title: '日期', dataIndex: 'date', width: 116 },
