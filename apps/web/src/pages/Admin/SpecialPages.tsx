@@ -85,10 +85,12 @@ export function SubmissionsAdmin() {
           title="投稿素材预览"
           width={preview?.kind === 'video' ? 640 : 480}
         >
-          {preview?.kind === 'video' ? (
-            <video src={preview.url} controls preload="metadata" style={{ width: '100%', maxHeight: '70vh', borderRadius: 8, background: '#000' }} />
-          ) : (
-            <img src={preview.url} alt="投稿素材" style={{ width: '100%', borderRadius: 8 }} />
+          {preview && (
+            preview.kind === 'video' ? (
+              <video key={preview.url} src={preview.url} controls preload="metadata" style={{ width: '100%', maxHeight: '70vh', borderRadius: 8, background: '#000' }} />
+            ) : (
+              <img key={preview.url} src={preview.url} alt="投稿素材" style={{ width: '100%', borderRadius: 8 }} />
+            )
           )}
         </Modal>
       </Spin>
