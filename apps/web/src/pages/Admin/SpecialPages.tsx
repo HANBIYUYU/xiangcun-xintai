@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   Table, Button, Modal, Form, Input, Select, Space, Popconfirm, message, Tag, Spin, Statistic, Card, Row, Col,
 } from 'antd';
-import { CheckOutlined, CloseOutlined, ExportOutlined, PlusOutlined } from '@ant-design/icons';
+import { CheckOutlined, CloseOutlined, ExportOutlined, PlusOutlined, EyeOutlined } from '@ant-design/icons';
 import { submissionsAPI, suggestionsAPI, quizAPI, bookingsAPI, ordersAPI } from '../../api';
 
 const { TextArea } = Input;
@@ -15,9 +15,14 @@ const STATUS_MAP: Record<string, string> = {
 };
 
 /* ---------------- 投稿审核（团队） ---------------- */
+/** 依据 URL 后缀判断素材是图片还是视频 */
+const mediaKind = (url: string): 'image' | 'video' =>
+  /\.(mp4|webm|mov)(\?|#|$)/i.test(url) ? 'video' : 'image';
+
 export function SubmissionsAdmin() {
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [preview, setPreview] = useState<{ url: string; kind: 'image' | 'video' } | null>(null);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -54,7 +59,12 @@ export function SubmissionsAdmin() {
             { title: '作者', dataIndex: 'author_name', width: 110 },
             { title: '类型', dataIndex: 'type', width: 90, render: (v: string) => <Tag>{v}</Tag> },
             { title: '内容', dataIndex: 'content', ellipsis: true },
-            { title: '素材链接', dataIndex: 'media_url', width: 160, ellipsis: true },
+            {
+              title: '素材', dataIndex: 'media_url', width: 110,
+              render: (v: string) => v ? (
+                <Button size="small" icon={<EyeOutlined />} onClick={() => setPreview({ url: v, kind: mediaKind(v) })}>查看素材</Button>
+              ) : <span style={{ color: '#bbb' }}>无</span>,
+            },
             { title: '状态', dataIndex: 'status', width: 90, render: (v: string) => <Tag color={STATUS_MAP[v]}>{v}</Tag> },
             { title: '提交时间', dataIndex: 'created_at', width: 160 },
             {
@@ -68,6 +78,19 @@ export function SubmissionsAdmin() {
             },
           ]}
         />
+        <Modal
+          open={!!preview}
+          onCancel={() => setPreview(null)}
+          footer={null}
+          title="投稿素材预览"
+          width={preview?.kind === 'video' ? 640 : 480}
+        >
+          {preview?.kind === 'video' ? (
+            <video src={preview.url} controls preload="metadata" style={{ width: '100%', maxHeight: '70vh', borderRadius: 8, background: '#000' }} />
+          ) : (
+            <img src={preview.url} alt="投稿素材" style={{ width: '100%', borderRadius: 8 }} />
+          )}
+        </Modal>
       </Spin>
     </div>
   );

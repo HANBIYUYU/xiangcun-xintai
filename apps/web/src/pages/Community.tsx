@@ -36,7 +36,7 @@ function SubmitTab() {
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [mediaFile, setMediaFile] = useState<{ name: string; url: string } | null>(null);
+  const [mediaFile, setMediaFile] = useState<{ name: string; url: string; kind: 'image' | 'video' } | null>(null);
   const [list, setList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -54,8 +54,9 @@ function SubmitTab() {
     try {
       const res: any = await uploadAPI.upload(file as File);
       const url = res.url;
+      const f = file as File;
       form.setFieldValue('media_url', url);
-      setMediaFile({ name: (file as File).name, url });
+      setMediaFile({ name: f.name, url, kind: f.type.startsWith('video') ? 'video' : 'image' });
       message.success('素材上传成功');
       onSuccess?.(res);
     } catch (e: any) {
@@ -96,7 +97,7 @@ function SubmitTab() {
           <Form.Item name="content" label="内容描述" rules={[{ required: true, message: '请填写内容' }]}>
             <TextArea rows={4} placeholder="老照片拍摄年代与场景 / 口述故事 / 短视频说明" />
           </Form.Item>
-          <Form.Item label="素材文件（选填）" extra="支持图片 / 短视频（≤100MB），直接上传；也可用下方外链">
+          <Form.Item label="素材文件（选填）" extra="支持图片 / 短视频（≤100MB），上传后可直接预览；也可用下方外链">
             <Upload
               customRequest={customUpload}
               accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime"
@@ -104,9 +105,16 @@ function SubmitTab() {
               showUploadList={false}
             >
               <Button icon={<UploadOutlined />} loading={uploading} block>
-                {mediaFile ? `已上传：${mediaFile.name}` : '点击选择图片 / 视频上传'}
+                {mediaFile ? `已上传：${mediaFile.name}（点击可重新选择）` : '点击选择图片 / 视频上传'}
               </Button>
             </Upload>
+            {mediaFile && (
+              mediaFile.kind === 'video' ? (
+                <video src={mediaFile.url} controls preload="metadata" style={{ width: '100%', maxHeight: 260, borderRadius: 8, marginTop: 8, background: '#000' }} />
+              ) : (
+                <img src={mediaFile.url} alt="素材预览" style={{ width: '100%', maxHeight: 300, objectFit: 'cover', borderRadius: 8, marginTop: 8 }} />
+              )
+            )}
           </Form.Item>
           <Form.Item name="media_url" label="外链 URL（选填，上传后自动填入）">
             <Input placeholder="https://... 外部图片 / 视频地址" />
