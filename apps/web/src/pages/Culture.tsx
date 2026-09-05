@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Tabs, Card, Tag, Modal, Spin, Empty, message, Button } from 'antd';
 import { PlayCircleOutlined, CalendarOutlined, EnvironmentOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import PageLayout from '../components/PageLayout';
+import { isDirectVideoUrl } from '../sections/MediaSection';
 import { redPlaysAPI, articlesAPI, activitiesAPI } from '../api';
 
 const TYPE_COLOR: Record<string, string> = {
@@ -149,7 +150,7 @@ export default function CulturePage() {
         <Tabs items={items} />
       )}
 
-      {/* 戏曲播放弹层 */}
+      {/* 戏曲播放弹层：R2 直链用 <video>，网页/B 站嵌入用 iframe */}
       <Modal
         title={player?.title}
         open={!!player}
@@ -159,17 +160,25 @@ export default function CulturePage() {
         destroyOnClose
       >
         {player?.iframe_src ? (
-          <div style={{ position: 'relative', paddingTop: '56.25%' }}>
-            <iframe
-              title={player.title}
+          isDirectVideoUrl(player.iframe_src) ? (
+            <video
               src={player.iframe_src}
-              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none', borderRadius: 8 }}
-              allowFullScreen
+              controls
+              style={{ width: '100%', borderRadius: 8, background: '#000', aspectRatio: '16 / 9', objectFit: 'contain' }}
             />
-          </div>
+          ) : (
+            <div style={{ position: 'relative', paddingTop: '56.25%' }}>
+              <iframe
+                title={player.title}
+                src={player.iframe_src}
+                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none', borderRadius: 8 }}
+                allowFullScreen
+              />
+            </div>
+          )
         ) : (
           <div className="placeholder-note" style={{ margin: 0 }}>
-            视频源待接入（白名单：bilibili / 腾讯视频 / YouTube），当前为占位封面。
+            视频源待接入（可填 B 站嵌入地址，或在素材库选 R2 视频）。
           </div>
         )}
         <p style={{ color: '#888', marginTop: 12 }}>分类：{player?.category}</p>

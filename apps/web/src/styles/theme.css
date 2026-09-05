@@ -1170,9 +1170,9 @@ section {
    ======================================== */
 .media-section-grid {
   display: grid;
-  grid-template-columns: 1.15fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 40px;
-  align-items: stretch;
+  align-items: start;
 }
 
 /* 右栏新闻拉满与左栏等高，避免右侧大片空白 */
@@ -1445,3 +1445,376 @@ section {
   from { opacity: 1; }
   to { opacity: 0; }
 }
+
+/* ---- 首页「影像与动态」：左右等高面板 + 内层滚动 ---- */
+.media-panel {
+  display: flex;
+  flex-direction: column;
+  height: 560px;
+  background: #fff;
+  border: 1px solid #F0E6DC;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 6px 24px rgba(43, 29, 26, 0.06);
+}
+.media-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid #F3ECE3;
+  flex-shrink: 0;
+}
+.media-panel-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2B1D1A;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.media-panel-title::before {
+  content: '';
+  width: 4px;
+  height: 16px;
+  border-radius: 2px;
+  background: #A3232B;
+}
+.media-panel-count {
+  font-size: 12px;
+  color: #A08B82;
+}
+.media-panel-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 左侧影像行 */
+.film-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px;
+  border: none;
+  border-radius: 12px;
+  background: #FAF7F2;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: all 0.25s ease;
+}
+.film-row:hover {
+  background: #FBEAEA;
+  transform: translateX(2px);
+}
+.film-row-cover {
+  flex-shrink: 0;
+  width: 120px;
+  height: 76px;
+  border-radius: 8px;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.film-row-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.film-row-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #2B1D1A;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* 右侧动态行 */
+.news-row {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #F3ECE3;
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: all 0.25s ease;
+}
+.news-row:hover {
+  border-color: rgba(163, 35, 43, 0.35);
+  background: #FDF9F4;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(163, 35, 43, 0.08);
+}
+.news-row-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.news-item-date {
+  font-size: 12px;
+  color: #A08B82;
+}
+.news-row-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #2B1D1A;
+  line-height: 1.45;
+}
+.news-row:hover .news-row-title {
+  color: #A3232B;
+}
+.news-row-sum {
+  font-size: 13px;
+  color: #8A7B73;
+  line-height: 1.6;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+@media (max-width: 1024px) {
+  .media-panel { height: 480px; }
+}
+@media (max-width: 767px) {
+  .media-panel { height: 440px; }
+  .film-row-cover { width: 100px; height: 68px; }
+}
+
+/* ---- 首页「影像与动态」v2：双列等宽无外框，各自内层滚动 ---- */
+.media-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.media-col-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #2B1D1A;
+  margin-bottom: 14px;
+}
+.media-col-title::before {
+  content: '';
+  width: 4px;
+  height: 16px;
+  border-radius: 2px;
+  background: #A3232B;
+}
+.media-col-scroll {
+  height: 560px;
+  overflow-y: scroll;            /* 常显轨道，内容超出即有滑块 */
+  overflow-x: hidden;
+  padding: 6px 8px 6px 0;        /* 上下留小 gap：首卡/末卡悬停上浮阴影不被容器边界裁切 */
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  scrollbar-width: thin;
+  scrollbar-color: #C9B8A8 #F1E9DF;
+}
+.media-col-scroll::-webkit-scrollbar { width: 8px; }
+.media-col-scroll::-webkit-scrollbar-track { background: #F1E9DF; border-radius: 4px; }
+.media-col-scroll::-webkit-scrollbar-thumb { background: #C9B8A8; border-radius: 4px; }
+.media-col-scroll::-webkit-scrollbar-thumb:hover { background: #A99A8B; }
+
+/* B 站式视频卡片：封面在上、文字在下（封面固定高度，避免 aspect-ratio 兼容问题） */
+.film-card {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+}
+.film-card-cover {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 158px;
+  border-radius: 10px;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.film-card:hover .film-card-cover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(163, 35, 43, 0.18);
+}
+.film-card-play {
+  font-size: 38px;
+  color: rgba(255, 255, 255, 0.95);
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+  transition: transform 0.25s ease;
+}
+.film-card:hover .film-card-play {
+  transform: scale(1.15);
+}
+.film-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 2px 0;
+}
+.film-card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #2B1D1A;
+  line-height: 1.45;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.film-card:hover .film-card-title {
+  color: #A3232B;
+}
+.film-card-tag .news-tag {
+  font-size: 11px;
+  padding: 1px 8px;
+}
+
+@media (max-width: 1024px) {
+  .media-col-scroll { height: 460px; }
+}
+@media (max-width: 767px) {
+  .media-col-scroll { height: 420px; }
+}
+
+/* ---- 影像与动态 v3：左侧 B 站式网格（16:9 封面 + 紧凑卡），右侧原版样式只加滚动 ---- */
+.film-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+  gap: 16px;
+}
+.film-card {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+}
+/* 16:9 用 padding-bottom 撑高（兼容无 aspect-ratio 的环境），背景铺满 */
+.film-card-cover {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+  padding-bottom: 56.25%;
+  border-radius: 10px;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+  background-color: #2B1D1A;
+}
+.film-card-play {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 30px;
+  color: rgba(255, 255, 255, 0.95);
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.45));
+  transition: transform 0.2s ease;
+}
+.film-card:hover .film-card-play {
+  transform: translate(-50%, -50%) scale(1.18);
+}
+.film-card-body {
+  display: block;
+  padding: 8px 2px 0;
+}
+.film-card-title {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #2B1D1A;
+  line-height: 1.45;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.film-card:hover .film-card-title {
+  color: #A3232B;
+}
+.film-card-tag {
+  display: block;
+  margin-top: 5px;
+}
+.film-card-tag .news-tag {
+  font-size: 11px;
+  padding: 1px 8px;
+}
+/* 右侧动态：原版 .news-item 仅加可点击手型，样式不动 */
+.media-col-scroll .news-item {
+  cursor: pointer;
+}
+
+@media (max-width: 767px) {
+  .film-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .film-card-play { font-size: 24px; }
+}
+
+/* 影像/动态：可点击卡片手型（其余样式全部沿用原版） */
+.media-col-scroll .film-main,
+.media-col-scroll .film-sub,
+.media-col-scroll .news-item {
+  cursor: pointer;
+}
+
+/* 大小视频卡共用悬停反馈（统一一套规则，避免两卡效果不一致）+ aspect-ratio 兜底高度 */
+.media-col-scroll .film-main { min-height: 200px; }
+.media-col-scroll .film-sub { min-height: 130px; }
+.media-col-scroll .film-main,
+.media-col-scroll .film-sub {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.media-col-scroll .film-main:hover,
+.media-col-scroll .film-sub:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 26px rgba(163, 35, 43, 0.20);
+}
+.media-col-scroll .film-main:hover .film-main-cover,
+.media-col-scroll .film-sub:hover .film-main-cover {
+  filter: brightness(1.1);
+}
+.media-col-scroll .film-main:hover .film-play,
+.media-col-scroll .film-sub:hover .film-play {
+  transform: translate(-50%, -50%) scale(1.18);
+  background: #D4A017;
+  box-shadow: 0 8px 22px rgba(163, 35, 43, 0.35);
+}
+.media-col-scroll [role='button']:focus { outline: none; }

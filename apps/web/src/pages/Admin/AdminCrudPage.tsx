@@ -12,7 +12,7 @@ const { TextArea } = Input;
 export interface CrudField {
   name: string;
   label: string;
-  type?: 'text' | 'textarea' | 'number' | 'select' | 'switch' | 'media';
+  type?: 'text' | 'textarea' | 'number' | 'select' | 'switch' | 'media' | 'video';
   options?: { value: string | number; label: string }[];
   required?: boolean;
   span?: 1 | 2; // 布局占位
@@ -67,29 +67,39 @@ function useSmartColumns(config: CrudConfig, rows: any[]) {
   }, [config, rows]);
 }
 
-/** 素材字段：输入框 + 「素材库」按钮（从图床选择，不必手填 URL） */
-function MediaInput({ value, onChange }: { value?: string; onChange?: (v: string) => void }) {
+/** 素材字段：输入框 + 「素材库」按钮（从图床选择，不必手填 URL）；kind=video 时只选视频 */
+function MediaInput({ value, onChange, kind }: { value?: string; onChange?: (v: string) => void; kind?: 'video' }) {
   const [pick, setPick] = useState(false);
+  const isVideo = kind === 'video';
   return (
     <>
       <Space.Compact style={{ width: '100%' }}>
-        <Input value={value || ''} onChange={(e) => onChange?.(e.target.value)} placeholder="/api/files/... 或外链 URL（可留空）" />
-        <Button icon={<PictureOutlined />} onClick={() => setPick(true)}>素材库</Button>
+        <Input
+          value={value || ''}
+          onChange={(e) => onChange?.(e.target.value)}
+          placeholder={isVideo ? '/api/files/videos/... 或 B 站嵌入地址' : '/api/files/... 或外链 URL（可留空）'}
+        />
+        <Button icon={<PictureOutlined />} onClick={() => setPick(true)}>{isVideo ? '选视频' : '选图片'}</Button>
       </Space.Compact>
       {value ? (
         <div style={{ marginTop: 6 }}>
-          <img
-            src={value}
-            alt="封面预览"
-            style={{ maxWidth: '100%', maxHeight: 120, borderRadius: 8, border: '1px solid #f0f0f0' }}
-            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-          />
+          {isVideo ? (
+            <video src={value} controls muted style={{ maxWidth: '100%', maxHeight: 110, borderRadius: 8, background: '#000' }} />
+          ) : (
+            <img
+              src={value}
+              alt="封面预览"
+              style={{ maxWidth: '100%', maxHeight: 120, borderRadius: 8, border: '1px solid #f0f0f0' }}
+              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+            />
+          )}
         </div>
       ) : null}
       <MediaPickerModal
         open={pick}
         onCancel={() => setPick(false)}
         onSelect={(url) => { onChange?.(url); setPick(false); }}
+        kinds={isVideo ? ['video'] : undefined}
       />
     </>
   );
@@ -247,7 +257,7 @@ export default function AdminCrudPage({ config }: { config: CrudConfig }) {
               label={f.label}
               rules={f.required ? [{ required: true, message: `请填写${f.label}` }] : undefined}
               style={f.span === 1 ? { display: 'inline-block', width: '48%', marginRight: '2%' } : undefined}
-              extra={f.type === 'media' ? '点击「素材库」从 R2 图床选择图片/视频' : undefined}
+              extra={f.type === 'media' ? '点击「素材库」从 R2 图床选择图片/视频' : f.type === 'video' ? '点击「选视频」从素材库选 R2 视频，或直接填 B 站嵌入地址' : undefined}
             >
               {f.type === 'textarea' ? (
                 <TextArea rows={3} />
@@ -259,6 +269,8 @@ export default function AdminCrudPage({ config }: { config: CrudConfig }) {
                 <Switch checkedChildren="是" unCheckedChildren="否" />
               ) : f.type === 'media' ? (
                 <MediaInput />
+              ) : f.type === 'video' ? (
+                <MediaInput kind="video" />
               ) : (
                 <Input />
               )}

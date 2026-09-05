@@ -228,16 +228,24 @@ export function MediaLibraryPage() {
   )
 }
 
-/** 素材选择弹窗：内容表单「素材库」按钮使用 */
-export function MediaPickerModal({ open, onCancel, onSelect }: {
+/** 素材选择弹窗：内容表单「素材库」按钮使用；kinds 可限定只选图片/视频 */
+export function MediaPickerModal({ open, onCancel, onSelect, kinds }: {
   open: boolean
   onCancel: () => void
   onSelect: (url: string) => void
+  kinds?: ('image' | 'video')[]
 }) {
   const { assets, loading, reload } = useAssets()
   const [kw, setKw] = useState('')
   const [dir, setDir] = useState('全部')
   const [uploadOpen, setUploadOpen] = useState(false)
+
+  const list = useMemo(() => assets.filter((a) => {
+    const kindsMatch = !kinds || kinds.length === 0 ||
+      (kinds.includes('image') && isImageKey(a.key)) ||
+      (kinds.includes('video') && isVideoKey(a.key))
+    return kindsMatch && (!kw || a.key.toLowerCase().includes(kw.toLowerCase()))
+  }), [assets, kw, kinds])
 
   return (
     <Modal
@@ -254,7 +262,7 @@ export function MediaPickerModal({ open, onCancel, onSelect }: {
         <Button icon={<CloudUploadOutlined />} onClick={() => setUploadOpen(true)}>上传素材</Button>
       </div>
       <Spin spinning={loading}>
-        <AssetGrid assets={assets} kw={kw} dir={dir} height="55vh" onSelect={(k) => { onSelect(mediaUrl(k)); onCancel() }} />
+        <AssetGrid assets={list} kw={kw} dir={dir} height="55vh" onSelect={(k) => { onSelect(mediaUrl(k)); onCancel() }} />
       </Spin>
       <UploadMediaModal open={uploadOpen} onCancel={() => setUploadOpen(false)} onDone={reload} />
     </Modal>

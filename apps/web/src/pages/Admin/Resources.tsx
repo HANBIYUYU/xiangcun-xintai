@@ -91,7 +91,7 @@ export const RedPlaysAdminConfig: CrudConfig = {
     { name: 'category', label: '分类', type: 'select', span: 1, options: [{ value: '折子戏', label: '折子戏' }, { value: '演出视频', label: '演出视频' }] },
     { name: 'sort_order', label: '排序', type: 'number', span: 1 },
     { name: 'cover_url', label: '封面图', ...coverField },
-    { name: 'iframe_src', label: '视频地址 / bvid（R2 videos 或外链）', span: 2 },
+    { name: 'iframe_src', label: '视频（素材库选 R2 视频，或填 B 站嵌入地址）', type: 'video', span: 2 },
   ],
   defaultValues: { category: '折子戏', sort_order: 0 },
 };
@@ -211,7 +211,7 @@ export const FilmsAdminConfig: CrudConfig = {
     { name: 'title', label: '短片标题', required: true },
     { name: 'sort_order', label: '排序（小到大）', type: 'number', span: 1 },
     { name: 'cover_url', label: '封面图', ...coverField },
-    { name: 'iframe_src', label: '视频地址 / bvid', span: 2 },
+    { name: 'iframe_src', label: '视频（素材库选 R2 视频，或填 B 站嵌入地址）', type: 'video', span: 2 },
   ],
   defaultValues: { sort_order: 0 },
 };

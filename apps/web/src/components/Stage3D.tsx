@@ -1,35 +1,61 @@
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
-import { OBJLoader } from 'three/addons/loaders/OBJLoader.js'
 
 /**
  * 三维古戏台模型（P6/P16）：
- * 优先加载真实 OBJ 低模（/assets/models/stage.obj，自动适配尺寸/居中/落位 + 默认木质材质，
- * 待 MTL/贴图接入后恢复真实材质）；加载失败回退程序化戏台。
+ * 优先加载真实 OBJ 低模（/assets/models/stage.obj），自动适配尺寸/居中/落位 + 默认木质观感，
+ * 待 MTL/贴图接入后恢复真实材质；加载失败回退程序化戏台。
  * 720° 拖拽旋转 / 滚轮缩放（OrbitControls）。
+ *
+ * 说明：不用 three 的 OBJLoader——该文件会被其误解析成 LineSegments（0 实体面），
+ * 故内置轻量解析器：仅支持 v / f（含 v/vt/vn 与负索引），n 边形按扇形三角化。
  */
 const MODEL_URL = '/assets/models/stage.obj'
 
-/** 给 OBJ 所有 mesh 统一默认观感（无 MTL 时避免全白），并开启阴影 */
-function shadeModel(root: THREE.Group) {
-  root.traverse((m) => {
-    if ((m as THREE.Mesh).isMesh) {
-      const mesh = m as THREE.Mesh
-      mesh.material = new THREE.MeshStandardMaterial({
-        color: 0x9c7c5b,        // 木色（待 MTL/贴图替换）
-        roughness: 0.85,
-        metalness: 0.05,
-        side: THREE.DoubleSide, // 防背面法线导致镂空
-      })
-      mesh.castShadow = true
-      mesh.receiveShadow = true
+/** 轻量 OBJ 解析 → 非索引三角面 BufferGeometry（顶点位置 + 重算法线） */
+function parseObjGeometry(text: string): THREE.BufferGeometry {
+  const verts: number[] = []
+  const faces: number[][] = []
+  for (const raw of text.split(/\r?\n/)) {
+    const t = raw.trim()
+    if (!t) continue
+    if (t.startsWith('v ')) {
+      const p = t.split(/\s+/).slice(1, 4).map(Number)
+      if (p.length === 3 && p.every(Number.isFinite)) verts.push(p[0], p[1], p[2])
+    } else if (t.startsWith('f ')) {
+      const tokens = t.split(/\s+/).slice(1)
+      const n = verts.length / 3
+      const idx: number[] = []
+      for (const s of tokens) {
+        const i = parseInt(s.split('/')[0], 10)
+        if (Number.isNaN(i)) continue
+        const resolved = i > 0 ? i - 1 : n + i // 支持负索引（相对当前末尾）
+        if (resolved >= 0 && resolved < n) idx.push(resolved)
+      }
+      if (idx.length >= 3) faces.push(idx)
     }
-  })
+  }
+
+  const pos: number[] = []
+  const add = (i: number) => {
+    pos.push(verts[i * 3], verts[i * 3 + 1], verts[i * 3 + 2])
+  }
+  for (const f of faces) {
+    for (let k = 1; k < f.length - 1; k++) {
+      add(f[0]); add(f[k]); add(f[k + 1]) // n 边形扇形三角化（含四边形）
+    }
+  }
+
+  const geo = new THREE.BufferGeometry()
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3))
+  geo.computeVertexNormals()
+  geo.computeBoundingBox()
+  return geo
 }
 
 /** 自动适配：等比缩放到目标尺寸、水平居中、底部贴地 */
-function fitModel(group: THREE.Group, target = 7.6) {
+function fitModel(group: THREE.Object3D, target = 7.6) {
   group.updateMatrixWorld(true)
   const box = new THREE.Box3().setFromObject(group)
   if (box.isEmpty()) return
@@ -160,22 +186,54 @@ export default function Stage3D() {
     ground.receiveShadow = true
     scene.add(ground)
 
-    // ---- 加载模型：OBJ 优先，失败回退程序化 ----
-    const addModel = (group: THREE.Group) => {
+    // ---- 加载模型：自研 OBJ 解析优先，失败回退程序化 ----
+    const addToScene = (root: THREE.Object3D, fromObj: boolean) => {
       if (disposed) return
-      shadeModel(group)
-      fitModel(group)
-      scene.add(group)
+      fitModel(root)
+      scene.add(root)
+      if (fromObj) {
+        let meshes = 0
+        let tris = 0
+        root.traverse((m) => {
+          if ((m as THREE.Mesh).isMesh) {
+            meshes++
+            const g = (m as THREE.Mesh).geometry as THREE.BufferGeometry
+            tris += (g.attributes.position ? g.attributes.position.count : 0) / 3
+          }
+        })
+        console.log(`[Stage3D] OBJ 解析成功：${meshes} 个 mesh / ${Math.round(tris)} 个三角面`)
+      } else {
+        console.warn('[Stage3D] OBJ 加载失败，回退程序化戏台')
+      }
       setReady(true)
     }
-    const onFail = () => {
-      if (disposed) return
-      console.warn('stage.obj 加载失败，回退程序化模型（待补 MTL/贴图）')
-      addModel(buildProceduralStage())
-    }
 
-    const loader = new OBJLoader()
-    loader.load(MODEL_URL, addModel, undefined, onFail)
+    fetch(MODEL_URL)
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.text()
+      })
+      .then((txt) => {
+        if (disposed) return
+        const geo = parseObjGeometry(txt)
+        const mesh = new THREE.Mesh(
+          geo,
+          new THREE.MeshStandardMaterial({
+            color: 0x9c7c5b, roughness: 0.85, metalness: 0.05,
+            side: THREE.DoubleSide,
+          })
+        )
+        mesh.castShadow = true
+        mesh.receiveShadow = true
+        const group = new THREE.Group()
+        group.name = 'stage-obj'
+        group.add(mesh)
+        addToScene(group, true)
+      })
+      .catch((err) => {
+        console.warn('[Stage3D] OBJ 加载异常：', err)
+        if (!disposed) addToScene(buildProceduralStage(), false)
+      })
 
     // ---- 动画循环 ----
     let raf = 0
